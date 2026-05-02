@@ -1,336 +1,966 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-    
-    <link rel="stylesheet" href="styles.css" />
-    <title>Advanto | Explora Colombia</title>
-  </head>
-  <body>
-    <div id="preloader" class="content">
-      <svg version="1.1" id="airplane-loader-takeoff" xmlns="http://www.w3.org/2000/svg" width="144" height="48" viewBox="0 0 144 48">
-        <path id="airplane-take-off" fill="#01bbbf" d="M59.124,34L56,29h-4l2.947,11H89c1.657,0,3-1.343,3-3s-1.343-3-3-3H78.998L69,18h-4l4.287,16H59.124z"/>
-        <rect id="ground" x="52" y="44" fill="#1d293d" width="40" height="4"/>
-      </svg>
-      <svg version="1.1" id="airplane-loader-landing" xmlns="http://www.w3.org/2000/svg" width="144" height="48" viewBox="0 0 144 48">
-        <path id="airplane-landing" fill="#01bbbf" d="M59.124,34L56,29h-4l2.947,11H89c1.657,0,3-1.343,3-3s-1.343-3-3-3H78.998L69,18h-4l4.287,16H59.124z"/>
-        <rect id="ground" x="52" y="44" fill="#1d293d" width="40" height="4"/>
-      </svg>
-    </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanto | Explora Colombia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
 
-    <div id="map-modal" class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Selecciona tu Destino en Colombia</h3>
-          <button id="close-map" class="close-btn"><i class="ri-close-line"></i></button>
-        </div>
-        <div id="map"></div>
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="preloader__inner">
+      <div class="preloader__plane">
+        <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 42L30 34L48 10L52 14L38 34L70 26L70 34L38 44L32 62L26 62L30 44L10 50L10 42Z" fill="#C8A96E"/>
+        </svg>
       </div>
+      <div class="preloader__text">Advanto</div>
+      <div class="preloader__line"><span></span></div>
     </div>
+  </div>
 
-    <nav>
-      <div class="nav__header">
-        <div class="nav__logo">
-          <a href="#">
-            <img src="assets/logo.png" alt="logo" />
-          </a>
-        </div>
-        <div class="nav__menu__btn" id="menu-btn">
-          <i class="ri-menu-3-line"></i>
-        </div>
-      </div>
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav__inner">
+      <a href="#home" class="nav__logo">
+        <span class="logo__icon"><i class="ri-compass-3-line"></i></span>
+        <span class="logo__text">Advanto</span>
+      </a>
       <ul class="nav__links" id="nav-links">
-        <li><a href="#home">Inicio</a></li>
-        <li><a href="#about">Nosotros</a></li>
-        <li><a href="#tour">Tours</a></li>
-        <li><a href="#contact">Contacto</a></li>
-        <li>
-          <button class="btn">
-            Planear Viaje
-            <span><i class="ri-arrow-right-long-line"></i></span>
-          </button>
-        </li>
+        <li><a href="#home" class="nav__link">Inicio</a></li>
+        <li><a href="#about" class="nav__link">Nosotros</a></li>
+        <li><a href="#tours" class="nav__link">Tours</a></li>
+        <li><a href="#destinations" class="nav__link">Destinos</a></li>
+        <li><a href="#experiences" class="nav__link">Experiencias</a></li>
+        <li><a href="#blog" class="nav__link">Blog</a></li>
+        <li><a href="#contact" class="nav__link">Contacto</a></li>
+        <li><a href="#contact" class="nav__cta">Planear Viaje</a></li>
       </ul>
-    </nav>
+      <button class="nav__hamburger" id="hamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
 
-    <header class="section__container header__container" id="home">
-      <div class="header__image">
-        <img src="assets/header.png" alt="header" />
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero__bg">
+      <div class="hero__overlay"></div>
+      <div class="hero__noise"></div>
+    </div>
+    <div class="hero__content">
+      <div class="hero__badge">
+        <span class="badge__dot"></span>
+        Descubriendo Colombia desde 2018
       </div>
-      <div class="header__content">
-        <img src="assets/plane.png" alt="plane" />
-        <h1>Explora Colombia y Disfruta tu Viaje</h1>
-        <p class="section__description">
-          Descubre destinos impresionantes y crea recuerdos inolvidables con Advanto. Desde las murallas de Cartagena hasta las montañas del Eje Cafetero y la magia del Amazonas. ¡Hagamos realidad el viaje de tus sueños!
-        </p>
-        
-        <form id="travel-form">
-          <div class="input__group">
-            <label>
-              <span><i class="ri-map-pin-line"></i></span> Ubicación
-            </label>
-            <input 
-              type="text" 
-              id="location-input" 
-              class="premium-input map-trigger" 
-              placeholder="Seleccionar en el mapa 🗺️" 
-              readonly 
-            />
+      <h1 class="hero__title">
+        <span class="hero__title--em">Explora</span> Colombia,<br>
+        Vive lo <em>Extraordinario</em>
+      </h1>
+      <p class="hero__desc">
+        Desde las murallas doradas de Cartagena hasta la selva profunda del Amazonas. 
+        Diseñamos viajes únicos que transforman cada destino en una experiencia de vida.
+      </p>
+      <div class="hero__actions">
+        <a href="#destinations" class="btn btn--primary">Ver Destinos <i class="ri-arrow-right-line"></i></a>
+        <a href="#tours" class="btn btn--ghost"><i class="ri-play-circle-line"></i> Nuestros Tours</a>
+      </div>
+    </div>
+    <div class="hero__stats">
+      <div class="hero__stat">
+        <span class="stat__num">+2,400</span>
+        <span class="stat__label">Viajeros felices</span>
+      </div>
+      <div class="hero__stat">
+        <span class="stat__num">32</span>
+        <span class="stat__label">Destinos únicos</span>
+      </div>
+      <div class="hero__stat">
+        <span class="stat__num">6</span>
+        <span class="stat__label">Años de experiencia</span>
+      </div>
+      <div class="hero__stat">
+        <span class="stat__num">4.9★</span>
+        <span class="stat__label">Calificación promedio</span>
+      </div>
+    </div>
+    <div class="hero__scroll">
+      <span>Scroll</span>
+      <div class="scroll__line"></div>
+    </div>
+  </section>
+
+  <!-- SEARCH BAR -->
+  <section class="search__section">
+    <div class="search__container">
+      <form id="travel-form" class="search__form">
+        <div class="search__group">
+          <label><i class="ri-map-pin-2-line"></i> Destino</label>
+          <select id="location-select">
+            <option value="" disabled selected>¿A dónde quieres ir?</option>
+            <option>Cartagena de Indias</option>
+            <option>Medellín y Antioquia</option>
+            <option>Santa Marta &amp; Tayrona</option>
+            <option>San Andrés</option>
+            <option>Eje Cafetero</option>
+            <option>Bogotá</option>
+            <option>Amazonas (Leticia)</option>
+            <option>San Gil &amp; Santander</option>
+            <option>Villa de Leyva</option>
+            <option>Nuquí &amp; Chocó</option>
+          </select>
+        </div>
+        <div class="search__divider"></div>
+        <div class="search__group">
+          <label><i class="ri-calendar-event-line"></i> Fecha de salida</label>
+          <input type="date" id="travel-date" />
+        </div>
+        <div class="search__divider"></div>
+        <div class="search__group">
+          <label><i class="ri-team-line"></i> Viajeros</label>
+          <select id="travelers">
+            <option>1 persona</option>
+            <option>2 personas</option>
+            <option>3 personas</option>
+            <option>4 personas</option>
+            <option>Grupo (5+)</option>
+          </select>
+        </div>
+        <button class="search__btn" type="submit">
+          <i class="ri-search-2-line"></i>
+          Buscar
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about__grid">
+        <div class="about__visual">
+          <div class="about__img-wrap">
+            <div class="about__img about__img--main">
+              <img src="assets/about.jpg" alt="Colombia viaje" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600'"/>
+            </div>
+            <div class="about__img about__img--accent">
+              <img src="assets/tour-1.jpg" alt="Playa Colombia" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300'"/>
+            </div>
+            <div class="about__badge-float">
+              <span class="float__num">+2,400</span>
+              <span class="float__text">Viajeros<br>satisfechos</span>
+            </div>
           </div>
-          <div class="input__group">
-            <label for="date">
-              <span><i class="ri-calendar-line"></i></span> Fecha
-            </label>
-            <input
-              type="text"
-              id="travel-date"
-              class="premium-input"
-              placeholder="Elige una fecha 🗓️"
-            />
+        </div>
+        <div class="about__text">
+          <p class="section__eyebrow">¿Quiénes somos?</p>
+          <h2 class="section__title">Colombia es nuestra<br><em>pasión</em>, los viajes<br>nuestra misión</h2>
+          <p class="about__desc">
+            En Advanto nacimos con una idea simple: que cada colombiano y cada viajero que llega al país merece experimentarlo en su máxima expresión. No somos una agencia más — somos un equipo de exploradores que diseñan itinerarios con alma.
+          </p>
+          <p class="about__desc">
+            Cada ruta está pensada, cada hospedaje elegido a mano, cada experiencia curada para que regreses transformado. Llevamos más de 6 años conectando personas con los rincones más increíbles de esta tierra privilegiada.
+          </p>
+          <div class="about__values">
+            <div class="value__item">
+              <i class="ri-heart-line"></i>
+              <div>
+                <strong>Viajes con propósito</strong>
+                <span>Turismo responsable y sostenible</span>
+              </div>
+            </div>
+            <div class="value__item">
+              <i class="ri-customer-service-2-line"></i>
+              <div>
+                <strong>Acompañamiento total</strong>
+                <span>Antes, durante y después de tu viaje</span>
+              </div>
+            </div>
+            <div class="value__item">
+              <i class="ri-shield-check-line"></i>
+              <div>
+                <strong>Garantía Advanto</strong>
+                <span>Tu inversión siempre protegida</span>
+              </div>
+            </div>
           </div>
-          <button class="btn" type="submit">
-            <i class="ri-search-line"></i>
+          <a href="#contact" class="btn btn--primary">Hablemos de tu viaje <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY US -->
+  <section class="why">
+    <div class="container">
+      <div class="section__head">
+        <p class="section__eyebrow">Por qué elegirnos</p>
+        <h2 class="section__title section__title--center">La diferencia <em>Advanto</em></h2>
+      </div>
+      <div class="why__grid">
+        <div class="why__card">
+          <div class="why__icon"><i class="ri-route-line"></i></div>
+          <h3>Rutas exclusivas</h3>
+          <p>Diseñamos itinerarios que no encontrarás en ninguna otra agencia. Acceso a lugares únicos y experiencias auténticas fuera del turismo masivo.</p>
+        </div>
+        <div class="why__card why__card--highlight">
+          <div class="why__icon"><i class="ri-user-star-line"></i></div>
+          <h3>Guías locales expertos</h3>
+          <p>Nuestros guías son nativos de cada región. Conocen cada camino, cada historia, cada sabor. Con ellos, Colombia te habla diferente.</p>
+        </div>
+        <div class="why__card">
+          <div class="why__icon"><i class="ri-price-tag-3-line"></i></div>
+          <h3>Precio justo, calidad real</h3>
+          <p>Creemos que un buen viaje no debe arruinar tu bolsillo. Negociamos directamente con proveedores para darte el mejor valor.</p>
+        </div>
+        <div class="why__card">
+          <div class="why__icon"><i class="ri-leaf-line"></i></div>
+          <h3>Turismo responsable</h3>
+          <p>Trabajamos con comunidades locales, minimizamos el impacto ambiental y contribuimos activamente a la conservación de los ecosistemas.</p>
+        </div>
+        <div class="why__card">
+          <div class="why__icon"><i class="ri-time-line"></i></div>
+          <h3>Flexibilidad total</h3>
+          <p>Cambios de fecha sin penalidad, planes a tu medida y opciones de pago cómodas. Entendemos que la vida no siempre es predecible.</p>
+        </div>
+        <div class="why__card">
+          <div class="why__icon"><i class="ri-24-hours-line"></i></div>
+          <h3>Soporte 24/7</h3>
+          <p>Nuestro equipo está disponible en todo momento. Un WhatsApp, una llamada — siempre hay alguien listo para ayudarte donde estés.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOURS -->
+  <section class="tours" id="tours">
+    <div class="container">
+      <div class="section__head">
+        <p class="section__eyebrow">Tipo de Aventura</p>
+        <h2 class="section__title section__title--center">Elige tu <em>experiencia</em></h2>
+        <p class="section__sub">Colombia tiene un sabor para cada tipo de viajero. ¿Cuál es el tuyo?</p>
+      </div>
+      <div class="tours__grid">
+        <div class="tour__card">
+          <div class="tour__img">
+            <img src="assets/tour-1.jpg" alt="Playas" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400'"/>
+            <div class="tour__overlay">
+              <span class="tour__count">25 Tours</span>
+            </div>
+          </div>
+          <div class="tour__body">
+            <div class="tour__icon"><i class="ri-sailboat-line"></i></div>
+            <h3>Playas y Caribe</h3>
+            <p>San Andrés, Cartagena, Santa Marta y el Pacífico salvaje. El mar colombiano en toda su gloria.</p>
+            <a href="#contact" class="tour__link">Explorar <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="tour__card">
+          <div class="tour__img">
+            <img src="assets/tour-2.jpg" alt="Eje Cafetero" onerror="this.src='https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=400'"/>
+            <div class="tour__overlay">
+              <span class="tour__count">20 Tours</span>
+            </div>
+          </div>
+          <div class="tour__body">
+            <div class="tour__icon"><i class="ri-plant-line"></i></div>
+            <h3>Eje Cafetero</h3>
+            <p>Fincas cafeteras, paisajes infinitos, pueblos de colores y el mejor café del mundo en su origen.</p>
+            <a href="#contact" class="tour__link">Explorar <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="tour__card">
+          <div class="tour__img">
+            <img src="assets/tour-3.jpg" alt="Selva" onerror="this.src='https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400'"/>
+            <div class="tour__overlay">
+              <span class="tour__count">15 Tours</span>
+            </div>
+          </div>
+          <div class="tour__body">
+            <div class="tour__icon"><i class="ri-ghost-smile-line"></i></div>
+            <h3>Aventura en la Selva</h3>
+            <p>El Amazonas y la selva chocoana te esperan. Fauna, ríos infinitos y comunidades indígenas ancestrales.</p>
+            <a href="#contact" class="tour__link">Explorar <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="tour__card">
+          <div class="tour__img">
+            <img src="assets/tour-4.jpg" alt="Cultura" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400'"/>
+            <div class="tour__overlay">
+              <span class="tour__count">30 Tours</span>
+            </div>
+          </div>
+          <div class="tour__body">
+            <div class="tour__icon"><i class="ri-ancient-gate-line"></i></div>
+            <h3>Historia y Cultura</h3>
+            <p>Ciudades patrimonio, museos vivos, festivales ancestrales. La memoria viva de Colombia en cada piedra.</p>
+            <a href="#contact" class="tour__link">Explorar <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="tour__card">
+          <div class="tour__img">
+            <img src="assets/destination-1.jpg" alt="Lujo" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400'"/>
+            <div class="tour__overlay">
+              <span class="tour__count">12 Tours</span>
+            </div>
+          </div>
+          <div class="tour__body">
+            <div class="tour__icon"><i class="ri-vip-crown-line"></i></div>
+            <h3>Viajes de Lujo</h3>
+            <p>Lodges exclusivos, experiencias privadas y servicio premium. Colombia en su versión más sofisticada.</p>
+            <a href="#contact" class="tour__link">Explorar <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="tour__card">
+          <div class="tour__img">
+            <img src="assets/destination-2.jpg" alt="Familia" onerror="this.src='https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400'"/>
+            <div class="tour__overlay">
+              <span class="tour__count">18 Tours</span>
+            </div>
+          </div>
+          <div class="tour__body">
+            <div class="tour__icon"><i class="ri-parent-line"></i></div>
+            <h3>Viajes en Familia</h3>
+            <p>Planes pensados para todas las edades. Actividades, alojamientos y rutas que todos disfrutarán.</p>
+            <a href="#contact" class="tour__link">Explorar <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESTINATIONS -->
+  <section class="destinations" id="destinations">
+    <div class="container">
+      <div class="section__head">
+        <p class="section__eyebrow">Nuestros destinos top</p>
+        <h2 class="section__title section__title--center">Lugares que te <em>cambian</em> la vida</h2>
+      </div>
+      <div class="dest__grid">
+
+        <div class="dest__card dest__card--large">
+          <img src="assets/destination-1.jpg" alt="Cartagena" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'"/>
+          <div class="dest__info">
+            <span class="dest__region">Costa Caribe</span>
+            <h3>Cartagena de Indias</h3>
+            <p>La joya colonial del Caribe, donde cada calle es un cuadro y cada muralla tiene siglos de historia que contar.</p>
+            <div class="dest__meta">
+              <span><i class="ri-time-line"></i> 4 días</span>
+              <span><i class="ri-group-line"></i> Grupos pequeños</span>
+              <span><i class="ri-star-fill"></i> 4.9</span>
+            </div>
+            <div class="dest__price">
+              <span>Desde</span>
+              <strong>$1.200.000 COP</strong>
+              <small>/ persona</small>
+            </div>
+            <a href="#contact" class="btn btn--white">Ver Paquete</a>
+          </div>
+        </div>
+
+        <div class="dest__card">
+          <img src="assets/destination-2.jpg" alt="Medellín" onerror="this.src='https://images.unsplash.com/photo-1591604021695-0c69b7c05981?w=500'"/>
+          <div class="dest__info">
+            <span class="dest__region">Antioquia</span>
+            <h3>Medellín y Antioquia</h3>
+            <p>La ciudad más innovadora, con Guatapé, la Piedra del Peñol y pueblos llenos de color.</p>
+            <div class="dest__price">
+              <strong>$950.000 COP</strong>
+              <small>/ persona · 3 días</small>
+            </div>
+            <a href="#contact" class="btn btn--outline">Ver Paquete</a>
+          </div>
+        </div>
+
+        <div class="dest__card">
+          <img src="assets/destination-3.jpg" alt="Santa Marta" onerror="this.src='https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500'"/>
+          <div class="dest__info">
+            <span class="dest__region">Sierra Nevada</span>
+            <h3>Santa Marta &amp; Tayrona</h3>
+            <p>Naturaleza viva, selva que llega al mar y la cultura ancestral de los pueblos Kogi.</p>
+            <div class="dest__price">
+              <strong>$1.100.000 COP</strong>
+              <small>/ persona · 4 días</small>
+            </div>
+            <a href="#contact" class="btn btn--outline">Ver Paquete</a>
+          </div>
+        </div>
+
+        <div class="dest__card">
+          <img src="assets/tour-1.jpg" alt="San Andrés" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500'"/>
+          <div class="dest__info">
+            <span class="dest__region">Caribe Insular</span>
+            <h3>San Andrés</h3>
+            <p>El mar de los siete colores, snorkel en el Acuario y atardeceres que no tienen igual.</p>
+            <div class="dest__price">
+              <strong>$1.599.000 COP</strong>
+              <small>/ persona · 5 días</small>
+            </div>
+            <a href="#contact" class="btn btn--outline">Ver Paquete</a>
+          </div>
+        </div>
+
+        <div class="dest__card">
+          <img src="assets/tour-2.jpg" alt="Eje Cafetero" onerror="this.src='https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500'"/>
+          <div class="dest__info">
+            <span class="dest__region">Eje Cafetero</span>
+            <h3>Salento y el Quindío</h3>
+            <p>Caminatas por el Valle de Cocora, fincas de café orgánico y el alma paisa en cada esquina.</p>
+            <div class="dest__price">
+              <strong>$780.000 COP</strong>
+              <small>/ persona · 3 días</small>
+            </div>
+            <a href="#contact" class="btn btn--outline">Ver Paquete</a>
+          </div>
+        </div>
+
+        <div class="dest__card">
+          <img src="assets/tour-3.jpg" alt="Amazonas" onerror="this.src='https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=500'"/>
+          <div class="dest__info">
+            <span class="dest__region">Amazonía</span>
+            <h3>Amazonas Colombiano</h3>
+            <p>Leticia, el río más grande del mundo y una biodiversidad que desafía la imaginación.</p>
+            <div class="dest__price">
+              <strong>$2.200.000 COP</strong>
+              <small>/ persona · 6 días</small>
+            </div>
+            <a href="#contact" class="btn btn--outline">Ver Paquete</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCES / HIGHLIGHTS -->
+  <section class="experiences" id="experiences">
+    <div class="container">
+      <div class="section__head">
+        <p class="section__eyebrow">Experiencias únicas</p>
+        <h2 class="section__title section__title--center">Momentos que no <em>olvidarás</em></h2>
+        <p class="section__sub">Más allá de los tours convencionales, Advanto te conecta con vivencias auténticas</p>
+      </div>
+      <div class="exp__grid">
+        <div class="exp__card">
+          <div class="exp__icon"><i class="ri-restaurant-2-line"></i></div>
+          <div class="exp__body">
+            <h3>Gastronomía local</h3>
+            <p>Mercados campesinos, clases de cocina tradicional con abuelas colombianas y cenas bajo las estrellas en fincas del Eje Cafetero.</p>
+            <ul>
+              <li><i class="ri-checkbox-circle-line"></i> Tour de mercado en Cartagena</li>
+              <li><i class="ri-checkbox-circle-line"></i> Clase de cocina afrocolombiana</li>
+              <li><i class="ri-checkbox-circle-line"></i> Cata de café y panela artesanal</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp__card exp__card--alt">
+          <div class="exp__icon"><i class="ri-kayaking-line"></i></div>
+          <div class="exp__body">
+            <h3>Aventura extrema</h3>
+            <p>Para los que buscan la adrenalina: rafting en el Río Suárez, parapente sobre Medellín, espeleología en las cavernas de Santander.</p>
+            <ul>
+              <li><i class="ri-checkbox-circle-line"></i> Rafting en San Gil</li>
+              <li><i class="ri-checkbox-circle-line"></i> Parapente en Bucaramanga</li>
+              <li><i class="ri-checkbox-circle-line"></i> Trekking a la Ciudad Perdida</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp__card">
+          <div class="exp__icon"><i class="ri-camera-lens-line"></i></div>
+          <div class="exp__body">
+            <h3>Fotografía y naturaleza</h3>
+            <p>Tours especiales diseñados para fotógrafos: amanecer en el Cocora, avifauna en el Chocó, fauna del Amazonas al atardecer.</p>
+            <ul>
+              <li><i class="ri-checkbox-circle-line"></i> Safari fotográfico de aves</li>
+              <li><i class="ri-checkbox-circle-line"></i> Amanecer en el Valle de Cocora</li>
+              <li><i class="ri-checkbox-circle-line"></i> Delfines rosados en el Amazonas</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp__card exp__card--alt">
+          <div class="exp__icon"><i class="ri-ancient-pavilion-line"></i></div>
+          <div class="exp__body">
+            <h3>Comunidades indígenas</h3>
+            <p>Visitas responsables y profundamente enriquecedoras a comunidades Kogi, Tikuna y Wayuu. Escucha sus historias de primera mano.</p>
+            <ul>
+              <li><i class="ri-checkbox-circle-line"></i> Visita a la comunidad Kogi</li>
+              <li><i class="ri-checkbox-circle-line"></i> Día con artesanos Wayuu</li>
+              <li><i class="ri-checkbox-circle-line"></i> Ceremonias Tikuna en el Amazonas</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp__card">
+          <div class="exp__icon"><i class="ri-hotel-line"></i></div>
+          <div class="exp__body">
+            <h3>Alojamientos especiales</h3>
+            <p>Desde eco-lodges en la selva hasta haciendas coloniales. Cada alojamiento es una experiencia en sí misma, elegido a mano por nuestro equipo.</p>
+            <ul>
+              <li><i class="ri-checkbox-circle-line"></i> Eco-lodges en el Amazonas</li>
+              <li><i class="ri-checkbox-circle-line"></i> Haciendas cafeteras del siglo XIX</li>
+              <li><i class="ri-checkbox-circle-line"></i> Posadas boutique en el Caribe</li>
+            </ul>
+          </div>
+        </div>
+        <div class="exp__card exp__card--alt">
+          <div class="exp__icon"><i class="ri-ship-2-line"></i></div>
+          <div class="exp__body">
+            <h3>Travesías fluviales</h3>
+            <p>Navega por el Magdalena, el Amazonas y los ríos del Pacífico. Colombia también se descubre desde el agua.</p>
+            <ul>
+              <li><i class="ri-checkbox-circle-line"></i> Crucero por el río Amazonas</li>
+              <li><i class="ri-checkbox-circle-line"></i> Lancha a las Islas del Rosario</li>
+              <li><i class="ri-checkbox-circle-line"></i> Kayak en Nuquí</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="process">
+    <div class="container">
+      <div class="section__head">
+        <p class="section__eyebrow">¿Cómo funciona?</p>
+        <h2 class="section__title section__title--center">Tu viaje en <em>4 pasos</em></h2>
+      </div>
+      <div class="process__steps">
+        <div class="process__step">
+          <div class="step__number">01</div>
+          <div class="step__icon"><i class="ri-discuss-line"></i></div>
+          <h3>Conversamos</h3>
+          <p>Cuéntanos qué buscas: destino, fechas, presupuesto y tipo de experiencia. Nuestro asesor escucha y entiende.</p>
+        </div>
+        <div class="process__arrow"><i class="ri-arrow-right-line"></i></div>
+        <div class="process__step">
+          <div class="step__number">02</div>
+          <div class="step__icon"><i class="ri-draft-line"></i></div>
+          <h3>Diseñamos</h3>
+          <p>Creamos un itinerario personalizado con alojamiento, actividades y transporte. Todo pensado para ti.</p>
+        </div>
+        <div class="process__arrow"><i class="ri-arrow-right-line"></i></div>
+        <div class="process__step">
+          <div class="step__number">03</div>
+          <div class="step__icon"><i class="ri-secure-payment-line"></i></div>
+          <h3>Confirmamos</h3>
+          <p>Apruebas el plan, realizas el pago en cuotas cómodas y nosotros gestionamos todo lo demás.</p>
+        </div>
+        <div class="process__arrow"><i class="ri-arrow-right-line"></i></div>
+        <div class="process__step">
+          <div class="step__number">04</div>
+          <div class="step__icon"><i class="ri-flight-takeoff-line"></i></div>
+          <h3>¡Viajamos!</h3>
+          <p>Solo enfócate en disfrutar. Tendrás soporte constante y un guía local que hará todo extraordinario.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="reviews">
+    <div class="container">
+      <div class="section__head">
+        <p class="section__eyebrow">Lo que dicen nuestros viajeros</p>
+        <h2 class="section__title section__title--center">Historias <em>reales</em></h2>
+      </div>
+      <div class="reviews__grid">
+        <div class="review__card review__card--featured">
+          <div class="review__quote"><i class="ri-double-quotes-l"></i></div>
+          <p>"El tour por el Eje Cafetero fue espectacular. Toda la logística, el hospedaje en las fincas y el recorrido por Salento fue organizado de manera impecable. Fue el mejor viaje de mi vida, sin duda volvería."</p>
+          <div class="review__author">
+            <div class="review__avatar">CR</div>
+            <div>
+              <strong>Camila Rodríguez</strong>
+              <span>Bogotá · Eje Cafetero 5 días</span>
+            </div>
+            <div class="review__stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="review__card">
+          <div class="review__quote"><i class="ri-double-quotes-l"></i></div>
+          <p>"Siempre quise ir a San Andrés pero me daba pereza planear. El equipo de Advanto me armó un paquete todo incluido y yo solo me dediqué a disfrutar del mar de los siete colores."</p>
+          <div class="review__author">
+            <div class="review__avatar">AF</div>
+            <div>
+              <strong>Andrés Felipe</strong>
+              <span>Cali · San Andrés</span>
+            </div>
+            <div class="review__stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="review__card">
+          <div class="review__quote"><i class="ri-double-quotes-l"></i></div>
+          <p>"Viajé al Amazonas con Advanto y fue una experiencia transformadora. Los delfines rosados, la comunidad Tikuna, los atardeceres en el río... no tengo palabras. Solo gracias."</p>
+          <div class="review__author">
+            <div class="review__avatar">ML</div>
+            <div>
+              <strong>María López</strong>
+              <span>Medellín · Amazonas 6 días</span>
+            </div>
+            <div class="review__stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="review__card">
+          <div class="review__quote"><i class="ri-double-quotes-l"></i></div>
+          <p>"Llevé a mis padres de 65 y 68 años a Cartagena. Advanto pensó en todo: transporte accesible, ritmo pausado, hotel perfecto. Mis viejos quedaron felices y eso no tiene precio."</p>
+          <div class="review__author">
+            <div class="review__avatar">JP</div>
+            <div>
+              <strong>Juan Pablo Gómez</strong>
+              <span>Barranquilla · Cartagena</span>
+            </div>
+            <div class="review__stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="review__card">
+          <div class="review__quote"><i class="ri-double-quotes-l"></i></div>
+          <p>"El plan de Santa Marta y Tayrona superó todas mis expectativas. La logística fue perfecta, el guía conocía cada rincón del parque y el hostal boutique era una joya escondida."</p>
+          <div class="review__author">
+            <div class="review__avatar">VR</div>
+            <div>
+              <strong>Valentina Ríos</strong>
+              <span>Bucaramanga · Tayrona</span>
+            </div>
+            <div class="review__stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-half-fill"></i>
+            </div>
+          </div>
+        </div>
+        <div class="review__card">
+          <div class="review__quote"><i class="ri-double-quotes-l"></i></div>
+          <p>"Hicimos un viaje de grupo de 8 personas y fue perfecto. El precio fue justo, el trato excelente y el itinerario muy bien equilibrado entre descanso y actividades. ¡Repetiremos!"</p>
+          <div class="review__author">
+            <div class="review__avatar">KS</div>
+            <div>
+              <strong>Karen Salcedo</strong>
+              <span>Bogotá · Medellín grupo</span>
+            </div>
+            <div class="review__stars">
+              <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reviews__summary">
+        <div class="summary__score">4.9</div>
+        <div class="summary__info">
+          <div class="summary__stars">
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+          </div>
+          <p>Basado en <strong>+480 reseñas verificadas</strong> de viajeros reales</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="container">
+      <div class="faq__grid">
+        <div class="faq__left">
+          <p class="section__eyebrow">Preguntas frecuentes</p>
+          <h2 class="section__title">Todo lo que<br>necesitas <em>saber</em></h2>
+          <p>¿Tienes más preguntas? Nuestro equipo está disponible por WhatsApp todos los días de 7am a 10pm.</p>
+          <a href="#contact" class="btn btn--primary">Escríbenos <i class="ri-whatsapp-line"></i></a>
+        </div>
+        <div class="faq__list">
+          <div class="faq__item">
+            <button class="faq__q">
+              ¿Con cuánto tiempo de anticipación debo reservar?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a">
+              <p>Recomendamos reservar con mínimo 15 días de anticipación para garantizar disponibilidad en los mejores alojamientos y actividades. Para temporada alta (diciembre, Semana Santa, junio-julio), sugerimos hacerlo con 30-45 días de anticipación.</p>
+            </div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__q">
+              ¿Qué incluye el precio de los paquetes?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a">
+              <p>Nuestros paquetes incluyen: alojamiento en las noches indicadas, traslados del aeropuerto/terminal, guía local en las excursiones y las actividades especificadas en el itinerario. Los tiquetes aéreos se cotizan por separado salvo que se indique lo contrario.</p>
+            </div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__q">
+              ¿Cuáles son las opciones de pago?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a">
+              <p>Aceptamos pago en efectivo, transferencia bancaria, tarjetas de crédito (hasta 12 cuotas sin interés con algunos bancos) y plataformas digitales como Nequi y Daviplata. Para confirmar la reserva se requiere un anticipo del 30%.</p>
+            </div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__q">
+              ¿Qué pasa si necesito cancelar o cambiar mi viaje?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a">
+              <p>Cancela hasta 72 horas antes y devolvemos el 80% del valor pagado. Cambios de fecha sin penalidad hasta 15 días antes (sujeto a disponibilidad). Consulta nuestras políticas completas para casos de fuerza mayor.</p>
+            </div>
+          </div>
+          <div class="faq__item">
+            <button class="faq__q">
+              ¿Organizan viajes para grupos grandes?
+              <i class="ri-add-line"></i>
+            </button>
+            <div class="faq__a">
+              <p>¡Claro! Especializamos grupos corporativos, de amigos, familia, colegios y empresas. A partir de 8 personas aplicamos tarifas especiales y coordinamos todo el logístico a la medida del grupo. Contáctanos para una cotización personalizada.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section class="blog" id="blog">
+    <div class="container">
+      <div class="section__head">
+        <p class="section__eyebrow">Noticias &amp; Blog</p>
+        <h2 class="section__title section__title--center">Inspírate para tu<br><em>próxima aventura</em></h2>
+      </div>
+      <div class="blog__grid">
+        <div class="blog__card blog__card--featured">
+          <div class="blog__img">
+            <img src="assets/blog-1.jpg" alt="Amazonas" onerror="this.src='https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?w=700'"/>
+            <span class="blog__tag">Naturaleza</span>
+          </div>
+          <div class="blog__body">
+            <div class="blog__meta"><span><i class="ri-calendar-line"></i> Enero 2026</span><span><i class="ri-time-line"></i> 5 min lectura</span></div>
+            <h3>5 razones para visitar el Amazonas Colombiano este año</h3>
+            <p>El pulmón del mundo guarda secretos que solo se revelan a quienes se atreven a llegar. Descubre por qué el Amazonas colombiano es diferente al de Brasil o Perú.</p>
+            <a href="#" class="blog__link">Leer más <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="blog__card">
+          <div class="blog__img">
+            <img src="assets/blog-2.jpg" alt="Tayrona" onerror="this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500'"/>
+            <span class="blog__tag">Consejos</span>
+          </div>
+          <div class="blog__body">
+            <div class="blog__meta"><span><i class="ri-calendar-line"></i> Feb 2026</span></div>
+            <h3>Guía para empacar en el Parque Tayrona</h3>
+            <p>Lo que llevas puede hacer la diferencia entre un viaje épico y uno lleno de molestias. Esta guía te salva.</p>
+            <a href="#" class="blog__link">Leer más <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="blog__card">
+          <div class="blog__img">
+            <img src="assets/blog-3.jpg" alt="Pueblos Patrimonio" onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500'"/>
+            <span class="blog__tag">Cultura</span>
+          </div>
+          <div class="blog__body">
+            <div class="blog__meta"><span><i class="ri-calendar-line"></i> Mar 2026</span></div>
+            <h3>Pueblos Patrimonio: recorrido por la historia viva</h3>
+            <p>Barichara, Mompox, Villa de Leyva... Colombia tiene joyas coloniales que el tiempo no ha podido borrar.</p>
+            <a href="#" class="blog__link">Leer más <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+        <div class="blog__card">
+          <div class="blog__img">
+            <img src="assets/destination-1.jpg" alt="Cartagena" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500'"/>
+            <span class="blog__tag">Destinos</span>
+          </div>
+          <div class="blog__body">
+            <div class="blog__meta"><span><i class="ri-calendar-line"></i> Abr 2026</span></div>
+            <h3>Cartagena más allá del Centro Histórico</h3>
+            <p>Getsemaní, La Boquilla, las islas del Rosario y los sabores que los turistas nunca encuentran.</p>
+            <a href="#" class="blog__link">Leer más <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="cta__banner">
+    <div class="cta__content">
+      <p class="section__eyebrow" style="color: #C8A96E;">¿Listo para viajar?</p>
+      <h2>Tu aventura colombiana<br>empieza <em>hoy</em></h2>
+      <p>Habla con uno de nuestros asesores y recibe en menos de 24 horas una propuesta de viaje completamente gratis y personalizada para ti.</p>
+      <div class="cta__actions">
+        <a href="#contact" class="btn btn--gold">Quiero mi propuesta gratis</a>
+        <a href="https://wa.me/573000000000" target="_blank" class="btn btn--ghost-light"><i class="ri-whatsapp-line"></i> WhatsApp directo</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact__grid">
+        <div class="contact__info">
+          <p class="section__eyebrow">Contáctanos</p>
+          <h2 class="section__title">Planea tu viaje<br>con <em>nosotros</em></h2>
+          <p>Cuéntanos qué tienes en mente. Un asesor especializado te responderá en menos de 2 horas hábiles con opciones reales para tu presupuesto.</p>
+          <div class="contact__items">
+            <div class="contact__item">
+              <div class="contact__icon"><i class="ri-whatsapp-line"></i></div>
+              <div>
+                <strong>WhatsApp</strong>
+                <span>+57 300 000 0000</span>
+              </div>
+            </div>
+            <div class="contact__item">
+              <div class="contact__icon"><i class="ri-mail-line"></i></div>
+              <div>
+                <strong>Email</strong>
+                <span>hola@advanto.co</span>
+              </div>
+            </div>
+            <div class="contact__item">
+              <div class="contact__icon"><i class="ri-time-line"></i></div>
+              <div>
+                <strong>Horario de atención</strong>
+                <span>Lun–Sáb · 7:00 AM – 10:00 PM</span>
+              </div>
+            </div>
+            <div class="contact__item">
+              <div class="contact__icon"><i class="ri-instagram-line"></i></div>
+              <div>
+                <strong>Instagram</strong>
+                <span>@advanto.trips</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <form class="contact__form" id="contact-form">
+          <div class="form__row">
+            <div class="form__group">
+              <label>Nombre completo</label>
+              <input type="text" placeholder="Tu nombre" required/>
+            </div>
+            <div class="form__group">
+              <label>Teléfono / WhatsApp</label>
+              <input type="tel" placeholder="+57 300 000 0000"/>
+            </div>
+          </div>
+          <div class="form__group">
+            <label>Destino de interés</label>
+            <select>
+              <option value="" disabled selected>Selecciona un destino</option>
+              <option>Cartagena de Indias</option>
+              <option>Medellín y Antioquia</option>
+              <option>Santa Marta &amp; Tayrona</option>
+              <option>San Andrés</option>
+              <option>Eje Cafetero (Salento)</option>
+              <option>Amazonas (Leticia)</option>
+              <option>San Gil &amp; Santander</option>
+              <option>Otro destino</option>
+            </select>
+          </div>
+          <div class="form__row">
+            <div class="form__group">
+              <label>Número de viajeros</label>
+              <select>
+                <option>1 persona</option>
+                <option>2 personas</option>
+                <option>3 - 4 personas</option>
+                <option>5 - 8 personas</option>
+                <option>Grupo de +8</option>
+              </select>
+            </div>
+            <div class="form__group">
+              <label>Presupuesto por persona</label>
+              <select>
+                <option>$500.000 - $1.000.000</option>
+                <option>$1.000.000 - $2.000.000</option>
+                <option>$2.000.000 - $4.000.000</option>
+                <option>+$4.000.000</option>
+              </select>
+            </div>
+          </div>
+          <div class="form__group">
+            <label>Cuéntanos tu sueño de viaje</label>
+            <textarea placeholder="¿Qué tipo de experiencia buscas? ¿Tienes fechas tentativas? Cualquier detalle nos ayuda a diseñar el plan perfecto para ti..." rows="4"></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">
+            Enviar al WhatsApp <i class="ri-send-plane-line"></i>
           </button>
+          <p class="form__note"><i class="ri-shield-check-line"></i> Tu información es privada y nunca será compartida con terceros.</p>
         </form>
       </div>
-    </header>
+    </div>
+  </section>
 
-    <section class="about" id="about">
-      <div class="section__container about__container">
-        <div class="about__image">
-          <img src="assets/about.jpg" alt="about" />
-        </div>
-        <div class="about__content">
-          <h2 class="section__header">
-            ¡Es Hora de una <span>Nueva Aventura!</span> No Esperes Más.
-          </h2>
-          <p class="section__description">
-            En Advanto, creemos que cada viaje es una historia esperando ser contada. Colombia es el país de la belleza, y ya sea que busques las playas cristalinas de San Andrés, la cultura vibrante de Medellín o la tranquilidad de nuestros parques nacionales, estamos aquí para llevarte.
-          </p>
-          <div class="about__signature">Advanto Trips</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section__container tour__container" id="tour">
-      <h3 class="section__subheader">Tipo de Tour</h3>
-      <h2 class="section__header">Elige tu Aventura Colombiana</h2>
-      <div class="tour__grid">
-        <div class="tour__card">
-          <img src="assets/tour-1.jpg" alt="tour" />
-          <h4>Playas y Caribe</h4>
-          <p>25 Tours+</p>
-        </div>
-        <div class="tour__card">
-          <img src="assets/tour-2.jpg" alt="tour" />
-          <h4>Eje Cafetero y Naturaleza</h4>
-          <p>20 Tours+</p>
-        </div>
-        <div class="tour__card">
-          <img src="assets/tour-3.jpg" alt="tour" />
-          <h4>Aventura en la Selva</h4>
-          <p>15 Tours+</p>
-        </div>
-        <div class="tour__card">
-          <img src="assets/tour-4.jpg" alt="tour" />
-          <h4>Tours Históricos y Culturales</h4>
-          <p>30 Tours+</p>
-        </div>
-      </div>
-      <div class="tour__btn">
-        <button class="btn">
-          Ver Todos
-          <span><i class="ri-arrow-right-long-line"></i></span>
-        </button>
-      </div>
-    </section>
-
-    <section class="destination">
-      <div class="section__container destination__container">
-        <h3 class="section__subheader">Mejores Destinos</h3>
-        <h2 class="section__header">Nuestros Destinos Top</h2>
-        <div class="destination__grid">
-          <div class="destination__card">
-            <img src="assets/destination-1.jpg" alt="destination" />
-            <div class="destination__card__content">
-              <h4>La joya del Caribe, historia y romance</h4>
-              <h5>Cartagena de Indias</h5>
-              <div class="destination__card__footer">
-                <h6>$1.200.000 COP</h6>
-                <p>(4 días)</p>
-              </div>
-            </div>
-          </div>
-          <div class="destination__card">
-            <img src="assets/destination-2.jpg" alt="destination" />
-            <div class="destination__card__content">
-              <h4>Color, cultura y vistas impresionantes en Guatapé</h4>
-              <h5>Medellín y Antioquia</h5>
-              <div class="destination__card__footer">
-                <h6>$950.000 COP</h6>
-                <p>(3 días)</p>
-              </div>
-            </div>
-          </div>
-          <div class="destination__card">
-            <img src="assets/destination-3.jpg" alt="destination" />
-            <div class="destination__card__content">
-              <h4>Naturaleza viva, cultura indígena y el Parque Tayrona</h4>
-              <h5>Santa Marta</h5>
-              <div class="destination__card__footer">
-                <h6>$1.100.000 COP</h6>
-                <p>(4 días)</p>
-              </div>
-            </div>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer__main">
+      <div class="container footer__grid">
+        <div class="footer__brand">
+          <a href="#home" class="nav__logo">
+            <span class="logo__icon"><i class="ri-compass-3-line"></i></span>
+            <span class="logo__text">Advanto</span>
+          </a>
+          <p>Diseñamos viajes auténticos que conectan a las personas con la magia de Colombia. Tu aventura empieza aquí.</p>
+          <div class="footer__social">
+            <a href="#" aria-label="Instagram"><i class="ri-instagram-line"></i></a>
+            <a href="#" aria-label="Facebook"><i class="ri-facebook-fill"></i></a>
+            <a href="#" aria-label="TikTok"><i class="ri-tiktok-line"></i></a>
+            <a href="#" aria-label="YouTube"><i class="ri-youtube-line"></i></a>
           </div>
         </div>
-        <div class="destination__btn">
-          <button class="btn">
-            Ver Todos
-            <span><i class="ri-arrow-right-long-line"></i></span>
-          </button>
+        <div class="footer__col">
+          <h4>Destinos</h4>
+          <ul>
+            <li><a href="#destinations">Cartagena de Indias</a></li>
+            <li><a href="#destinations">Medellín &amp; Antioquia</a></li>
+            <li><a href="#destinations">Santa Marta &amp; Tayrona</a></li>
+            <li><a href="#destinations">San Andrés</a></li>
+            <li><a href="#destinations">Eje Cafetero</a></li>
+            <li><a href="#destinations">Amazonas</a></li>
+            <li><a href="#destinations">Ver todos →</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Tours</h4>
+          <ul>
+            <li><a href="#tours">Playas y Caribe</a></li>
+            <li><a href="#tours">Aventura en la Selva</a></li>
+            <li><a href="#tours">Historia y Cultura</a></li>
+            <li><a href="#tours">Viajes de Lujo</a></li>
+            <li><a href="#tours">Viajes en Familia</a></li>
+            <li><a href="#tours">Grupos Empresariales</a></li>
+          </ul>
+        </div>
+        <div class="footer__col">
+          <h4>Advanto</h4>
+          <ul>
+            <li><a href="#about">Nosotros</a></li>
+            <li><a href="#blog">Blog de viajes</a></li>
+            <li><a href="#contact">Contacto</a></li>
+            <li><a href="#">Políticas de viaje</a></li>
+            <li><a href="#">Trabaja con nosotros</a></li>
+          </ul>
         </div>
       </div>
-    </section>
+    </div>
+    <div class="footer__bar">
+      <div class="container footer__bar__inner">
+        <span>© 2026 Advanto Colombia · Todos los derechos reservados.</span>
+        <span>Hecho con <i class="ri-heart-fill" style="color: #C8A96E;"></i> en Colombia</span>
+      </div>
+    </div>
+  </footer>
 
-    <section class="section__container review__container">
-      <div class="review__image">
-        <img src="assets/review.png" alt="review" />
-      </div>
-      <div class="review__content">
-        <h3 class="section__subheader">Mejores Reseñas</h3>
-        <h2 class="section__header">Lo que dicen nuestros viajeros</h2>
-        <div class="swiper">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <div class="review__card">
-                <span class="quote-icon"><i class="ri-double-quotes-l"></i></span>
-                <p class="section__description">
-                  "El tour por el Eje Cafetero fue espectacular. Toda la logística, el hospedaje en las fincas y el tour por Salento fue organizado de manera impecable por Advanto."
-                </p>
-                <h4>Camila Rodríguez</h4>
-                <h5>Bogotá</h5>
-                <div class="stars">
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                </div>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="review__card">
-                <span class="quote-icon"><i class="ri-double-quotes-l"></i></span>
-                <p class="section__description">
-                  "Siempre quise ir a San Andrés pero me daba pereza planear. El equipo de Advanto me armó un paquete todo incluido y yo solo me dediqué a disfrutar del mar de los siete colores."
-                </p>
-                <h4>Andrés Felipe</h4>
-                <h5>Cali</h5>
-                <div class="stars">
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="blog">
-      <div class="section__container blog__container">
-        <h3 class="section__subheader">Noticias y Blogs</h3>
-        <h2 class="section__header">Conoce más de Colombia</h2>
-        <div class="blog__grid">
-          <div class="blog__card">
-            <img src="assets/blog-1.jpg" alt="blog" />
-            <div class="blog__content">
-              <h4>5 Razones para visitar el Amazonas Colombiano este año</h4>
-              <button class="btn">
-                Leer Más
-                <span><i class="ri-arrow-right-long-line"></i></span>
-              </button>
-            </div>
-          </div>
-          <div class="blog__card">
-            <img src="assets/blog-2.jpg" alt="blog" />
-            <div class="blog__content">
-              <h4>Guía de Supervivencia: Cómo empacar para el Parque Tayrona</h4>
-              <button class="btn">
-                Leer Más
-                <span><i class="ri-arrow-right-long-line"></i></span>
-              </button>
-            </div>
-          </div>
-          <div class="blog__card">
-            <img src="assets/blog-3.jpg" alt="blog" />
-            <div class="blog__content">
-              <h4>Pueblos Patrimonio: Un recorrido por la historia de Colombia</h4>
-              <button class="btn">
-                Leer Más
-                <span><i class="ri-arrow-right-long-line"></i></span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="blog__btn">
-          <button class="btn">
-            Ver Todos
-            <span><i class="ri-arrow-right-long-line"></i></span>
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <section class="banner">
-      <div class="banner__wrapper">
-        <img src="assets/banner-1.jpg" alt="banner" />
-        <img src="assets/banner-2.jpg" alt="banner" />
-        <img src="assets/banner-3.jpg" alt="banner" />
-        <img src="assets/banner-4.jpg" alt="banner" />
-        <img src="assets/banner-5.jpg" alt="banner" />
-        <img src="assets/banner-6.jpg" alt="banner" />
-        <img src="assets/banner-7.jpg" alt="banner" />
-        <img src="assets/banner-8.jpg" alt="banner" />
-      </div>
-    </section>
-
-    <footer id="contact">
-      <div class="section__container footer__container">
-        <div class="footer__logo">
-          <img src="assets/logo.png" alt="logo" />
-        </div>
-        <ul class="footer__links">
-          <li><a href="#home">Inicio</a></li>
-          <li><a href="#about">Nosotros</a></li>
-          <li><a href="#tour">Tours</a></li>
-          <li><a href="#contact">Contacto</a></li>
-        </ul>
-        <ul class="footer__socials">
-          <li><a href="#"><i class="ri-facebook-fill"></i></a></li>
-          <li><a href="#"><i class="ri-twitter-fill"></i></a></li>
-          <li><a href="#"><i class="ri-instagram-line"></i></a></li>
-          <li><a href="#"><i class="ri-linkedin-fill"></i></a></li>
-        </ul>
-      </div>
-      <div class="footer__bar">
-        Copyright © 2026 Advanto Colombia. Todos los derechos reservados.
-      </div>
-    </footer>
-
-    <script src="https://unpkg.com/scrollreveal"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script> <script src="main.js"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="main.js"></script>
+</body>
 </html>
