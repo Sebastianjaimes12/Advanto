@@ -1,336 +1,1951 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
-    
-    <link rel="stylesheet" href="styles.css" />
-    <title>Advanto | Explora Colombia</title>
-  </head>
-  <body>
-    <div id="preloader" class="content">
-      <svg version="1.1" id="airplane-loader-takeoff" xmlns="http://www.w3.org/2000/svg" width="144" height="48" viewBox="0 0 144 48">
-        <path id="airplane-take-off" fill="#01bbbf" d="M59.124,34L56,29h-4l2.947,11H89c1.657,0,3-1.343,3-3s-1.343-3-3-3H78.998L69,18h-4l4.287,16H59.124z"/>
-        <rect id="ground" x="52" y="44" fill="#1d293d" width="40" height="4"/>
-      </svg>
-      <svg version="1.1" id="airplane-loader-landing" xmlns="http://www.w3.org/2000/svg" width="144" height="48" viewBox="0 0 144 48">
-        <path id="airplane-landing" fill="#01bbbf" d="M59.124,34L56,29h-4l2.947,11H89c1.657,0,3-1.343,3-3s-1.343-3-3-3H78.998L69,18h-4l4.287,16H59.124z"/>
-        <rect id="ground" x="52" y="44" fill="#1d293d" width="40" height="4"/>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Advanto | Agencia de Viajes Colombia — Explora el País de la Belleza</title>
+  <meta name="description" content="Advanto es la agencia de viajes líder en Colombia. Descubre Cartagena, San Andrés, Eje Cafetero, Amazonas y más. Precios accesibles, atención personalizada.">
+
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #01bbbf;
+      --primary-dark: #019fa3;
+      --text-dark: #1d293d;
+      --text-light: #62748e;
+      --text-muted: #94a3b8;
+      --bg-light: #f8fafc;
+      --bg-white: #ffffff;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+      --radius: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.5rem;
+      --max-width: 1280px;
+      --font-display: "Playfair Display", serif;
+      --font-body: "Inter", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      color: var(--text-dark);
+      background: var(--bg-white);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    body.loading { overflow: hidden; }
+
+    /* ===== PRELOADER ===== */
+    #preloader {
+      position: fixed; inset: 0;
+      background: var(--bg-white);
+      z-index: 99999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .preloader-plane {
+      width: 80px; height: 80px;
+      position: relative;
+      animation: float-plane 2s ease-in-out infinite;
+    }
+    .preloader-plane svg { width: 100%; height: 100%; }
+    .preloader-text {
+      margin-top: 1.5rem;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--text-dark);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .preloader-dots {
+      display: flex; gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .preloader-dots span {
+      width: 8px; height: 8px;
+      background: var(--primary);
+      border-radius: 50%;
+      animation: dot-pulse 1.4s ease-in-out infinite both;
+    }
+    .preloader-dots span:nth-child(1) { animation-delay: -0.32s; }
+    .preloader-dots span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes float-plane {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50% { transform: translateY(-15px) rotate(5deg); }
+    }
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ===== UTILITIES ===== */
+    .container { max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
+    .section-padding { padding: 5rem 0; }
+    @media (min-width: 768px) { .section-padding { padding: 7rem 0; } }
+
+    .section-label {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.875rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--primary); margin-bottom: 1rem;
+    }
+    .section-label::before {
+      content: ""; display: block; width: 24px; height: 2px; background: var(--primary);
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text-dark);
+      margin-bottom: 1.25rem;
+    }
+    .section-desc {
+      font-size: 1.125rem;
+      color: var(--text-light);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+    .text-center { text-align: center; }
+    .text-center .section-desc { margin-left: auto; margin-right: auto; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.875rem 2rem;
+      font-family: var(--font-body);
+      font-size: 0.9375rem; font-weight: 600;
+      border: none; border-radius: 100px;
+      cursor: pointer; transition: all 0.3s ease;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--primary); color: var(--bg-white);
+      box-shadow: 0 4px 14px rgba(1, 187, 191, 0.35);
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(1, 187, 191, 0.45);
+    }
+    .btn-outline {
+      background: transparent; color: var(--text-dark);
+      border: 2px solid var(--border);
+    }
+    .btn-outline:hover {
+      border-color: var(--primary); color: var(--primary);
+      background: rgba(1, 187, 191, 0.04);
+    }
+    .btn-dark {
+      background: var(--text-dark); color: var(--bg-white);
+    }
+    .btn-dark:hover {
+      background: #2d3d56;
+      transform: translateY(-2px);
+    }
+    .btn-sm { padding: 0.625rem 1.25rem; font-size: 0.875rem; }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+    nav.scrolled {
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-inner {
+      max-width: var(--max-width); margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.75rem; font-weight: 700;
+      color: var(--text-dark);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .nav-logo svg { width: 32px; height: 32px; }
+    .nav-logo span { color: var(--primary); }
+    .nav-links {
+      display: none; align-items: center; gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      text-decoration: none; color: var(--text-dark);
+      font-size: 0.9375rem; font-weight: 500;
+      position: relative; padding: 0.25rem 0;
+      transition: color 0.3s;
+    }
+    .nav-links a::after {
+      content: ""; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 2px; background: var(--primary);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-menu-btn {
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius);
+      background: var(--bg-light);
+      border: none; cursor: pointer; font-size: 1.25rem;
+      color: var(--text-dark);
+    }
+    @media (min-width: 1024px) {
+      .nav-links { display: flex; }
+      .nav-menu-btn { display: none; }
+    }
+
+    /* Mobile Menu */
+    .mobile-menu {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--bg-white);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2rem;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mobile-menu.open { transform: translateX(0); }
+    .mobile-menu a {
+      font-family: var(--font-display);
+      font-size: 2rem; color: var(--text-dark);
+      text-decoration: none; font-weight: 600;
+    }
+    .mobile-menu a:hover { color: var(--primary); }
+    .mobile-menu .close-btn {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      width: 48px; height: 48px;
+      border-radius: 50%; border: none;
+      background: var(--bg-light); cursor: pointer;
+      font-size: 1.5rem; color: var(--text-dark);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding-top: 80px;
+      background: var(--bg-light);
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-pattern {
+      position: absolute; inset: 0;
+      opacity: 0.4;
+      background-image: radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
+      background-size: 40px 40px;
+    }
+    .hero-inner {
+      max-width: var(--max-width); margin: 0 auto;
+      padding: 0 1.5rem;
+      display: grid; grid-template-columns: 1fr;
+      gap: 3rem; align-items: center;
+      position: relative; z-index: 1;
+    }
+    @media (min-width: 1024px) {
+      .hero-inner { grid-template-columns: 1.1fr 0.9fr; gap: 4rem; }
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.875rem; font-weight: 500;
+      color: var(--text-light);
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .hero-badge span { color: var(--primary); font-size: 1rem; }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 800; line-height: 1.1;
+      color: var(--text-dark);
+      margin-bottom: 1.5rem;
+    }
+    .hero-title em {
+      color: var(--primary);
+      font-style: normal;
+      position: relative;
+    }
+    .hero-title em::after {
+      content: "";
+      position: absolute; bottom: 0.1em; left: 0;
+      width: 100%; height: 0.15em;
+      background: rgba(1, 187, 191, 0.2);
+      z-index: -1;
+    }
+    .hero-desc {
+      font-size: 1.125rem; color: var(--text-light);
+      max-width: 520px; margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-stats {
+      display: flex; gap: 2.5rem;
+      margin-top: 3rem; padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+    .hero-stat h3 {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700;
+      color: var(--text-dark);
+    }
+    .hero-stat p {
+      font-size: 0.875rem; color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+    .hero-image-wrap {
+      position: relative;
+    }
+    .hero-image-main {
+      width: 100%; border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      object-fit: cover; aspect-ratio: 4/5;
+    }
+    .hero-float-card {
+      position: absolute;
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.25rem;
+      box-shadow: var(--shadow-lg);
+      display: flex; align-items: center; gap: 0.75rem;
+      animation: float-y 3s ease-in-out infinite;
+    }
+    .hero-float-card.card-1 {
+      bottom: 10%; left: -10%;
+      animation-delay: 0s;
+    }
+    .hero-float-card.card-2 {
+      top: 10%; right: -5%;
+      animation-delay: 1.5s;
+    }
+    .hero-float-card img {
+      width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+    }
+    .hero-float-card div h4 { font-size: 0.875rem; font-weight: 600; }
+    .hero-float-card div p { font-size: 0.75rem; color: var(--text-muted); }
+    .hero-float-card div .stars { color: #f59e0b; font-size: 0.75rem; }
+    @keyframes float-y {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @media (max-width: 1023px) {
+      .hero-float-card { display: none; }
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-bar {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      padding: 1.5rem;
+      display: grid; grid-template-columns: 1fr;
+      gap: 1rem;
+      max-width: 900px; margin: -3rem auto 0;
+      position: relative; z-index: 10;
+      border: 1px solid var(--border);
+    }
+    @media (min-width: 768px) {
+      .search-bar {
+        grid-template-columns: 1fr 1fr auto;
+        padding: 1rem 1.5rem;
+        align-items: end;
+      }
+    }
+    .search-field label {
+      display: block; font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--text-muted); margin-bottom: 0.5rem;
+    }
+    .search-field .input-wrap {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      transition: border-color 0.3s;
+      cursor: pointer;
+    }
+    .search-field .input-wrap:hover, .search-field .input-wrap:focus-within {
+      border-color: var(--primary);
+    }
+    .search-field .input-wrap i { color: var(--primary); font-size: 1.25rem; }
+    .search-field input {
+      border: none; outline: none; background: transparent;
+      font-family: var(--font-body); font-size: 0.9375rem;
+      font-weight: 500; color: var(--text-dark);
+      width: 100%; cursor: pointer;
+    }
+    .search-field input::placeholder { color: var(--text-muted); }
+    .search-btn {
+      height: 52px; width: 52px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--text-dark); color: var(--bg-white);
+      border: none; cursor: pointer; font-size: 1.25rem;
+      transition: all 0.3s;
+    }
+    .search-btn:hover { background: var(--primary); transform: scale(1.05); }
+
+    /* ===== ABOUT ===== */
+    .about-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 3rem; align-items: center;
+    }
+    @media (min-width: 1024px) {
+      .about-grid { grid-template-columns: 1fr 1fr; gap: 5rem; }
+    }
+    .about-images {
+      position: relative;
+    }
+    .about-img-main {
+      width: 85%; border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      aspect-ratio: 3/4; object-fit: cover;
+    }
+    .about-img-secondary {
+      position: absolute; bottom: -2rem; right: 0;
+      width: 50%; border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      border: 6px solid var(--bg-white);
+      aspect-ratio: 1; object-fit: cover;
+    }
+    .about-experience {
+      position: absolute; top: 2rem; right: 0;
+      background: var(--primary); color: var(--bg-white);
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+    }
+    .about-experience h3 {
+      font-family: var(--font-display);
+      font-size: 2.5rem; font-weight: 700;
+    }
+    .about-experience p {
+      font-size: 0.875rem; font-weight: 500;
+      opacity: 0.9;
+    }
+    .about-features {
+      display: grid; gap: 1.25rem;
+      margin-top: 2rem;
+    }
+    .about-feature {
+      display: flex; gap: 1rem;
+    }
+    .about-feature-icon {
+      width: 48px; height: 48px; min-width: 48px;
+      border-radius: var(--radius);
+      background: rgba(1, 187, 191, 0.08);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary); font-size: 1.25rem;
+    }
+    .about-feature h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .about-feature p { font-size: 0.875rem; color: var(--text-light); }
+
+    /* ===== STATS ===== */
+    .stats-section {
+      background: var(--text-dark);
+      color: var(--bg-white);
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 2rem; text-align: center;
+    }
+    @media (min-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .stat-item h3 {
+      font-family: var(--font-display);
+      font-size: 3rem; font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+    .stat-item p {
+      font-size: 0.9375rem; color: rgba(255,255,255,0.7);
+      font-weight: 500;
+    }
+
+    /* ===== TOURS ===== */
+    .tours-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    @media (min-width: 640px) { .tours-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .tours-grid { grid-template-columns: repeat(4, 1fr); } }
+    .tour-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }
+    .tour-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-xl);
+      border-color: transparent;
+    }
+    .tour-card-img {
+      height: 220px; overflow: hidden; position: relative;
+    }
+    .tour-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .tour-card:hover .tour-card-img img { transform: scale(1.08); }
+    .tour-card-badge {
+      position: absolute; top: 1rem; left: 1rem;
+      background: var(--primary); color: var(--bg-white);
+      padding: 0.375rem 0.875rem;
+      border-radius: 100px; font-size: 0.75rem;
+      font-weight: 600; text-transform: uppercase;
+    }
+    .tour-card-body { padding: 1.5rem; }
+    .tour-card-body h3 {
+      font-size: 1.125rem; font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .tour-card-body p {
+      font-size: 0.875rem; color: var(--text-light);
+      margin-bottom: 1rem; line-height: 1.6;
+    }
+    .tour-card-meta {
+      display: flex; align-items: center; gap: 1rem;
+      font-size: 0.8125rem; color: var(--text-muted);
+    }
+    .tour-card-meta span { display: flex; align-items: center; gap: 0.25rem; }
+
+    /* ===== DESTINATIONS ===== */
+    .destinations-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    @media (min-width: 768px) { .destinations-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .destinations-grid { grid-template-columns: repeat(3, 1fr); } }
+    .destination-card {
+      position: relative;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      aspect-ratio: 4/5;
+      cursor: pointer;
+      group: true;
+    }
+    .destination-card img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.7s ease;
+    }
+    .destination-card:hover img { transform: scale(1.1); }
+    .destination-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(29,41,61,0.9) 0%, rgba(29,41,61,0.3) 50%, transparent 100%);
+      display: flex; flex-direction: column;
+      justify-content: flex-end;
+      padding: 1.5rem;
+      transition: all 0.4s;
+    }
+    .destination-card:hover .destination-overlay {
+      background: linear-gradient(to top, rgba(29,41,61,0.95) 0%, rgba(29,41,61,0.5) 60%, transparent 100%);
+    }
+    .destination-tag {
+      display: inline-block;
+      background: var(--primary); color: var(--bg-white);
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px; font-size: 0.75rem;
+      font-weight: 600; margin-bottom: 0.75rem;
+      width: fit-content;
+    }
+    .destination-overlay h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--bg-white); margin-bottom: 0.5rem;
+    }
+    .destination-overlay p {
+      font-size: 0.875rem; color: rgba(255,255,255,0.8);
+      margin-bottom: 1rem; line-height: 1.5;
+    }
+    .destination-price {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .destination-price h4 {
+      font-size: 1.25rem; font-weight: 700; color: var(--bg-white);
+    }
+    .destination-price h4 span {
+      font-size: 0.75rem; font-weight: 400;
+      color: rgba(255,255,255,0.6);
+    }
+    .destination-arrow {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--bg-white);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary); font-size: 1.25rem;
+      transform: translateX(-10px); opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .destination-card:hover .destination-arrow {
+      transform: translateX(0); opacity: 1;
+    }
+
+    /* ===== WHY US ===== */
+    .why-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    @media (min-width: 768px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .why-grid { grid-template-columns: repeat(3, 1fr); } }
+    .why-card {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      transition: all 0.3s ease;
+    }
+    .why-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
+    }
+    .why-icon {
+      width: 56px; height: 56px;
+      border-radius: var(--radius);
+      background: rgba(1, 187, 191, 0.08);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary); font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .why-card h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .why-card p { font-size: 0.9375rem; color: var(--text-light); line-height: 1.6; }
+
+    /* ===== PROCESS ===== */
+    .process-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 2rem; margin-top: 3rem;
+      position: relative;
+    }
+    @media (min-width: 768px) { .process-grid { grid-template-columns: repeat(4, 1fr); } }
+    .process-step {
+      text-align: center; position: relative;
+    }
+    @media (min-width: 768px) {
+      .process-step:not(:last-child)::after {
+        content: ""; position: absolute;
+        top: 2rem; right: -50%;
+        width: 100%; height: 2px;
+        background: var(--border);
+        z-index: 0;
+      }
+    }
+    .process-num {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--bg-white);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--primary);
+      margin: 0 auto 1.25rem;
+      position: relative; z-index: 1;
+      transition: all 0.3s;
+    }
+    .process-step:hover .process-num {
+      background: var(--primary); color: var(--bg-white);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 8px rgba(1, 187, 191, 0.1);
+    }
+    .process-step h3 { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .process-step p { font-size: 0.9375rem; color: var(--text-light); }
+
+    /* ===== REVIEWS ===== */
+    .reviews-section { background: var(--bg-light); }
+    .reviews-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 2rem; align-items: center;
+    }
+    @media (min-width: 1024px) {
+      .reviews-grid { grid-template-columns: 0.8fr 1.2fr; gap: 4rem; }
+    }
+    .review-highlight {
+      background: var(--text-dark); color: var(--bg-white);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      position: relative;
+    }
+    .review-highlight .quote-big {
+      font-family: var(--font-display);
+      font-size: 5rem; line-height: 1;
+      color: var(--primary); opacity: 0.3;
+      position: absolute; top: 1rem; left: 1.5rem;
+    }
+    .review-highlight p {
+      font-size: 1.125rem; line-height: 1.8;
+      margin-bottom: 2rem; position: relative; z-index: 1;
+    }
+    .review-author { display: flex; align-items: center; gap: 1rem; }
+    .review-author img {
+      width: 56px; height: 56px; border-radius: 50%; object-fit: cover;
+      border: 3px solid var(--primary);
+    }
+    .review-author h4 { font-size: 1rem; font-weight: 600; }
+    .review-author p { font-size: 0.875rem; color: rgba(255,255,255,0.7); margin: 0; }
+    .review-author .stars { color: #f59e0b; font-size: 0.875rem; margin-top: 0.25rem; }
+    .review-cards {
+      display: grid; gap: 1.5rem;
+    }
+    @media (min-width: 768px) { .review-cards { grid-template-columns: repeat(2, 1fr); } }
+    .review-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .review-card:hover {
+      box-shadow: var(--shadow-lg);
+      border-color: transparent;
+    }
+    .review-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .review-card-header img {
+      width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+    }
+    .review-card-header .stars { color: #f59e0b; font-size: 0.875rem; }
+    .review-card p {
+      font-size: 0.9375rem; color: var(--text-light);
+      line-height: 1.7; font-style: italic;
+    }
+    .review-card-footer {
+      margin-top: 1.25rem;
+      padding-top: 1rem; border-top: 1px solid var(--border);
+    }
+    .review-card-footer h4 { font-size: 0.9375rem; font-weight: 600; }
+    .review-card-footer span { font-size: 0.8125rem; color: var(--text-muted); }
+
+    /* ===== GALLERY / BANNER ===== */
+    .gallery-track {
+      display: flex; gap: 1rem;
+      animation: scroll-gallery 40s linear infinite;
+      width: max-content;
+    }
+    .gallery-track:hover { animation-play-state: paused; }
+    .gallery-track img {
+      height: 280px; width: 380px;
+      object-fit: cover; border-radius: var(--radius-lg);
+      transition: transform 0.4s;
+    }
+    .gallery-track img:hover { transform: scale(1.03); }
+    @keyframes scroll-gallery {
+      to { transform: translateX(-50%); }
+    }
+    .gallery-section { overflow: hidden; padding: 2rem 0; }
+
+    /* ===== BLOG ===== */
+    .blog-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    @media (min-width: 768px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .blog-grid { grid-template-columns: repeat(3, 1fr); } }
+    .blog-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: all 0.4s;
+    }
+    .blog-card:hover {
+      box-shadow: var(--shadow-xl);
+      border-color: transparent;
+      transform: translateY(-6px);
+    }
+    .blog-card-img {
+      height: 220px; overflow: hidden;
+    }
+    .blog-card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.6s;
+    }
+    .blog-card:hover .blog-card-img img { transform: scale(1.08); }
+    .blog-card-body { padding: 1.5rem; }
+    .blog-card-meta {
+      display: flex; gap: 1rem;
+      font-size: 0.8125rem; color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+    .blog-card-body h3 {
+      font-size: 1.125rem; font-weight: 700;
+      line-height: 1.4; margin-bottom: 1rem;
+      transition: color 0.3s;
+    }
+    .blog-card:hover .blog-card-body h3 { color: var(--primary); }
+    .blog-card-body .read-more {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.875rem; font-weight: 600;
+      color: var(--primary); text-decoration: none;
+    }
+    .blog-card-body .read-more i { transition: transform 0.3s; }
+    .blog-card:hover .read-more i { transform: translateX(4px); }
+
+    /* ===== FAQ ===== */
+    .faq-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 2rem; margin-top: 3rem;
+    }
+    @media (min-width: 1024px) { .faq-grid { grid-template-columns: 0.4fr 1fr; gap: 4rem; } }
+    .faq-list { display: flex; flex-direction: column; gap: 1rem; }
+    .faq-item {
+      background: var(--bg-white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .faq-item:hover { border-color: var(--primary); }
+    .faq-question {
+      width: 100%; padding: 1.25rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      background: none; border: none; cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 1rem; font-weight: 600;
+      color: var(--text-dark); text-align: left;
+    }
+    .faq-question i {
+      font-size: 1.25rem; color: var(--primary);
+      transition: transform 0.3s;
+    }
+    .faq-item.active .faq-question i { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.4s ease;
+    }
+    .faq-item.active .faq-answer {
+      max-height: 300px;
+      padding: 0 1.5rem 1.25rem;
+    }
+    .faq-answer p {
+      font-size: 0.9375rem; color: var(--text-light); line-height: 1.7;
+    }
+
+    /* ===== NEWSLETTER ===== */
+    .newsletter-box {
+      background: var(--text-dark);
+      border-radius: var(--radius-xl);
+      padding: 3rem 2rem;
+      display: grid; grid-template-columns: 1fr;
+      gap: 2rem; align-items: center;
+    }
+    @media (min-width: 1024px) {
+      .newsletter-box { grid-template-columns: 1fr 1fr; padding: 4rem; }
+    }
+    .newsletter-box h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+      color: var(--bg-white); margin-bottom: 1rem;
+    }
+    .newsletter-box p { color: rgba(255,255,255,0.7); margin-bottom: 0; }
+    .newsletter-form {
+      display: flex; gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .newsletter-form input {
+      flex: 1; min-width: 240px;
+      padding: 0.875rem 1.25rem;
+      border-radius: 100px; border: none;
+      font-family: var(--font-body); font-size: 0.9375rem;
+      outline: none;
+    }
+    .newsletter-form input::placeholder { color: var(--text-muted); }
+
+    /* ===== PARTNERS ===== */
+    .partners-track {
+      display: flex; align-items: center; justify-content: center;
+      gap: 3rem; flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .partner-item {
+      font-family: var(--font-display);
+      font-size: 1.5rem; font-weight: 700;
+      color: var(--text-muted);
+      opacity: 0.5;
+      transition: all 0.3s;
+      filter: grayscale(100%);
+    }
+    .partner-item:hover {
+      opacity: 1; color: var(--text-dark);
+      filter: grayscale(0%);
+    }
+
+    /* ===== CTA SECTION ===== */
+    .cta-section {
+      position: relative;
+      background: var(--bg-light);
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: ""; position: absolute;
+      top: -50%; right: -20%;
+      width: 600px; height: 600px;
+      background: rgba(1, 187, 191, 0.04);
+      border-radius: 50%;
+    }
+    .cta-inner {
+      position: relative; z-index: 1;
+      text-align: center; max-width: 700px; margin: 0 auto;
+    }
+    .cta-inner h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      margin-bottom: 1rem;
+    }
+    .cta-inner p { color: var(--text-light); margin-bottom: 2rem; font-size: 1.125rem; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--text-dark);
+      color: var(--bg-white);
+      padding-top: 4rem;
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 1fr;
+      gap: 3rem; padding-bottom: 3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    @media (min-width: 768px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .footer-grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; } }
+    .footer-brand h3 {
+      font-family: var(--font-display);
+      font-size: 1.75rem; margin-bottom: 1rem;
+    }
+    .footer-brand h3 span { color: var(--primary); }
+    .footer-brand p {
+      color: rgba(255,255,255,0.6); font-size: 0.9375rem;
+      line-height: 1.7; margin-bottom: 1.5rem;
+    }
+    .footer-socials { display: flex; gap: 1rem; }
+    .footer-socials a {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--bg-white); font-size: 1.125rem;
+      transition: all 0.3s;
+    }
+    .footer-socials a:hover {
+      background: var(--primary); transform: translateY(-3px);
+    }
+    .footer-col h4 {
+      font-size: 1rem; font-weight: 600;
+      margin-bottom: 1.5rem; color: var(--bg-white);
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 0.75rem; }
+    .footer-col a {
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      font-size: 0.9375rem; transition: color 0.3s;
+    }
+    .footer-col a:hover { color: var(--primary); }
+    .footer-contact li {
+      display: flex; align-items: flex-start; gap: 0.75rem;
+      color: rgba(255,255,255,0.6); font-size: 0.9375rem;
+    }
+    .footer-contact li i {
+      color: var(--primary); margin-top: 0.25rem;
+    }
+    .footer-bar {
+      padding: 1.5rem 0;
+      text-align: center;
+      color: rgba(255,255,255,0.4);
+      font-size: 0.875rem;
+    }
+
+    /* ===== MODAL MAP ===== */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      justify-content: center; align-items: center;
+      padding: 1rem;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-box {
+      background: var(--bg-white);
+      border-radius: var(--radius-xl);
+      width: 100%; max-width: 900px; height: 70vh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      transform: scale(0.95); transition: transform 0.3s;
+    }
+    .modal-overlay.active .modal-box { transform: scale(1); }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .modal-header h3 { font-size: 1.125rem; font-weight: 600; }
+    .modal-close {
+      width: 36px; height: 36px;
+      border-radius: 50%; border: none;
+      background: var(--bg-light); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; color: var(--text-dark);
+      transition: all 0.3s;
+    }
+    .modal-close:hover { background: var(--primary); color: var(--bg-white); }
+    #map { flex: 1; width: 100%; }
+
+    /* ===== SCROLL ANIMATIONS ===== */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ===== SCROLL TOP ===== */
+    .scroll-top {
+      position: fixed; bottom: 2rem; right: 2rem;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--primary); color: var(--bg-white);
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 14px rgba(1,187,191,0.4);
+      opacity: 0; visibility: hidden;
+      transform: translateY(20px);
+      transition: all 0.3s; z-index: 100;
+    }
+    .scroll-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+    .scroll-top:hover { background: var(--primary-dark); transform: translateY(-3px); }
+  </style>
+<base target="_blank">
+</head>
+<body class="loading">
+
+  <!-- PRELOADER -->
+  <div id="preloader">
+    <div class="preloader-plane">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#01bbbf" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12h20"/><path d="M13 2l9 10-9 10"/><path d="M13 2v20"/>
       </svg>
     </div>
+    <div class="preloader-text">Advanto</div>
+    <div class="preloader-dots"><span></span><span></span><span></span></div>
+  </div>
 
-    <div id="map-modal" class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Selecciona tu Destino en Colombia</h3>
-          <button id="close-map" class="close-btn"><i class="ri-close-line"></i></button>
-        </div>
-        <div id="map"></div>
-      </div>
-    </div>
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobile-menu">
+    <button class="close-btn" id="menu-close"><i class="ri-close-line"></i></button>
+    <a href="#home" class="menu-link">Inicio</a>
+    <a href="#about" class="menu-link">Nosotros</a>
+    <a href="#tours" class="menu-link">Tours</a>
+    <a href="#destinations" class="menu-link">Destinos</a>
+    <a href="#reviews" class="menu-link">Reseñas</a>
+    <a href="#blog" class="menu-link">Blog</a>
+    <a href="#contact" class="menu-link">Contacto</a>
+    <a href="#contact" class="btn btn-primary menu-link">Planear Viaje</a>
+  </div>
 
-    <nav>
-      <div class="nav__header">
-        <div class="nav__logo">
-          <a href="#">
-            <img src="assets/logo.png" alt="logo" />
-          </a>
-        </div>
-        <div class="nav__menu__btn" id="menu-btn">
-          <i class="ri-menu-3-line"></i>
-        </div>
-      </div>
-      <ul class="nav__links" id="nav-links">
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M4 16h24M20 4l8 12-8 12M20 4v24" stroke="#01bbbf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Advan<span>to</span>
+      </a>
+      <ul class="nav-links">
         <li><a href="#home">Inicio</a></li>
         <li><a href="#about">Nosotros</a></li>
-        <li><a href="#tour">Tours</a></li>
-        <li><a href="#contact">Contacto</a></li>
-        <li>
-          <button class="btn">
-            Planear Viaje
-            <span><i class="ri-arrow-right-long-line"></i></span>
-          </button>
-        </li>
+        <li><a href="#tours">Tours</a></li>
+        <li><a href="#destinations">Destinos</a></li>
+        <li><a href="#reviews">Reseñas</a></li>
+        <li><a href="#blog">Blog</a></li>
+        <li><a href="#contact" class="btn btn-primary btn-sm">Planear Viaje</a></li>
       </ul>
-    </nav>
+      <button class="nav-menu-btn" id="menu-open"><i class="ri-menu-3-line"></i></button>
+    </div>
+  </nav>
 
-    <header class="section__container header__container" id="home">
-      <div class="header__image">
-        <img src="assets/header.png" alt="header" />
-      </div>
-      <div class="header__content">
-        <img src="assets/plane.png" alt="plane" />
-        <h1>Explora Colombia y Disfruta tu Viaje</h1>
-        <p class="section__description">
-          Descubre destinos impresionantes y crea recuerdos inolvidables con Advanto. Desde las murallas de Cartagena hasta las montañas del Eje Cafetero y la magia del Amazonas. ¡Hagamos realidad el viaje de tus sueños!
-        </p>
-        
-        <form id="travel-form">
-          <div class="input__group">
-            <label>
-              <span><i class="ri-map-pin-line"></i></span> Ubicación
-            </label>
-            <input 
-              type="text" 
-              id="location-input" 
-              class="premium-input map-trigger" 
-              placeholder="Seleccionar en el mapa 🗺️" 
-              readonly 
-            />
-          </div>
-          <div class="input__group">
-            <label for="date">
-              <span><i class="ri-calendar-line"></i></span> Fecha
-            </label>
-            <input
-              type="text"
-              id="travel-date"
-              class="premium-input"
-              placeholder="Elige una fecha 🗓️"
-            />
-          </div>
-          <button class="btn" type="submit">
-            <i class="ri-search-line"></i>
-          </button>
-        </form>
-      </div>
-    </header>
-
-    <section class="about" id="about">
-      <div class="section__container about__container">
-        <div class="about__image">
-          <img src="assets/about.jpg" alt="about" />
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg-pattern"></div>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge reveal">
+          <span><i class="ri-map-pin-fill"></i></span>
+          Agencia de viajes #1 en Colombia
         </div>
-        <div class="about__content">
-          <h2 class="section__header">
-            ¡Es Hora de una <span>Nueva Aventura!</span> No Esperes Más.
-          </h2>
-          <p class="section__description">
+        <h1 class="hero-title reveal reveal-delay-1">
+          Explora Colombia y <em>Disfruta tu Viaje</em>
+        </h1>
+        <p class="hero-desc reveal reveal-delay-2">
+          Descubre destinos impresionantes y crea recuerdos inolvidables. Desde las murallas de Cartagena hasta las montañas del Eje Cafetero y la magia del Amazonas. ¡Hagamos realidad el viaje de tus sueños!
+        </p>
+        <div class="hero-cta reveal reveal-delay-3">
+          <a href="#destinations" class="btn btn-primary">
+            Ver Destinos <i class="ri-arrow-right-line"></i>
+          </a>
+          <a href="#about" class="btn btn-outline">
+            Conócenos <i class="ri-play-circle-line"></i>
+          </a>
+        </div>
+        <div class="hero-stats reveal reveal-delay-4">
+          <div class="hero-stat">
+            <h3>12+</h3>
+            <p>Años de experiencia</p>
+          </div>
+          <div class="hero-stat">
+            <h3>50+</h3>
+            <p>Destinos disponibles</p>
+          </div>
+          <div class="hero-stat">
+            <h3>15K+</h3>
+            <p>Viajeros felices</p>
+          </div>
+        </div>
+      </div>
+      <div class="hero-image-wrap reveal reveal-delay-2">
+        <img src="https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?w=800&q=80" alt="Cartagena Colombia" class="hero-image-main">
+        <div class="hero-float-card card-1">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Cliente">
+          <div>
+            <h4>Camila R.</h4>
+            <div class="stars"><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i></div>
+            <p>"El mejor viaje de mi vida"</p>
+          </div>
+        </div>
+        <div class="hero-float-card card-2">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Cliente">
+          <div>
+            <h4>Andrés F.</h4>
+            <div class="stars"><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i></div>
+            <p>"San Andrés fue increíble"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH BAR -->
+  <div class="container">
+    <form class="search-bar" id="travel-form">
+      <div class="search-field">
+        <label>Destino</label>
+        <div class="input-wrap map-trigger" id="location-trigger">
+          <i class="ri-map-pin-line"></i>
+          <input type="text" id="location-input" placeholder="Seleccionar en el mapa" readonly>
+        </div>
+      </div>
+      <div class="search-field">
+        <label>Fecha de viaje</label>
+        <div class="input-wrap">
+          <i class="ri-calendar-line"></i>
+          <input type="text" id="travel-date" placeholder="Elige una fecha">
+        </div>
+      </div>
+      <button type="submit" class="search-btn" title="Buscar viaje">
+        <i class="ri-search-line"></i>
+      </button>
+    </form>
+  </div>
+
+  <!-- ABOUT -->
+  <section class="section-padding" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-images reveal">
+          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Colombia" class="about-img-main">
+          <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=400&q=80" alt="Café" class="about-img-secondary">
+          <div class="about-experience">
+            <h3>12+</h3>
+            <p>Años de<br>experiencia</p>
+          </div>
+        </div>
+        <div class="reveal reveal-delay-2">
+          <span class="section-label">Sobre Nosotros</span>
+          <h2 class="section-title">Es Hora de una Nueva Aventura. No Esperes Más.</h2>
+          <p class="section-desc" style="max-width:100%">
             En Advanto, creemos que cada viaje es una historia esperando ser contada. Colombia es el país de la belleza, y ya sea que busques las playas cristalinas de San Andrés, la cultura vibrante de Medellín o la tranquilidad de nuestros parques nacionales, estamos aquí para llevarte.
           </p>
-          <div class="about__signature">Advanto Trips</div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section__container tour__container" id="tour">
-      <h3 class="section__subheader">Tipo de Tour</h3>
-      <h2 class="section__header">Elige tu Aventura Colombiana</h2>
-      <div class="tour__grid">
-        <div class="tour__card">
-          <img src="assets/tour-1.jpg" alt="tour" />
-          <h4>Playas y Caribe</h4>
-          <p>25 Tours+</p>
-        </div>
-        <div class="tour__card">
-          <img src="assets/tour-2.jpg" alt="tour" />
-          <h4>Eje Cafetero y Naturaleza</h4>
-          <p>20 Tours+</p>
-        </div>
-        <div class="tour__card">
-          <img src="assets/tour-3.jpg" alt="tour" />
-          <h4>Aventura en la Selva</h4>
-          <p>15 Tours+</p>
-        </div>
-        <div class="tour__card">
-          <img src="assets/tour-4.jpg" alt="tour" />
-          <h4>Tours Históricos y Culturales</h4>
-          <p>30 Tours+</p>
-        </div>
-      </div>
-      <div class="tour__btn">
-        <button class="btn">
-          Ver Todos
-          <span><i class="ri-arrow-right-long-line"></i></span>
-        </button>
-      </div>
-    </section>
-
-    <section class="destination">
-      <div class="section__container destination__container">
-        <h3 class="section__subheader">Mejores Destinos</h3>
-        <h2 class="section__header">Nuestros Destinos Top</h2>
-        <div class="destination__grid">
-          <div class="destination__card">
-            <img src="assets/destination-1.jpg" alt="destination" />
-            <div class="destination__card__content">
-              <h4>La joya del Caribe, historia y romance</h4>
-              <h5>Cartagena de Indias</h5>
-              <div class="destination__card__footer">
-                <h6>$1.200.000 COP</h6>
-                <p>(4 días)</p>
+          <div class="about-features">
+            <div class="about-feature">
+              <div class="about-feature-icon"><i class="ri-shield-check-line"></i></div>
+              <div>
+                <h4>Viajes 100% Seguros</h4>
+                <p>Contamos con todos los seguros y respaldos para que solo te preocupes por disfrutar.</p>
               </div>
             </div>
-          </div>
-          <div class="destination__card">
-            <img src="assets/destination-2.jpg" alt="destination" />
-            <div class="destination__card__content">
-              <h4>Color, cultura y vistas impresionantes en Guatapé</h4>
-              <h5>Medellín y Antioquia</h5>
-              <div class="destination__card__footer">
-                <h6>$950.000 COP</h6>
-                <p>(3 días)</p>
+            <div class="about-feature">
+              <div class="about-feature-icon"><i class="ri-price-tag-3-line"></i></div>
+              <div>
+                <h4>Mejores Precios Garantizados</h4>
+                <p>Negociamos directamente con hoteles y aerolíneas para ofrecerte las tarifas más bajas.</p>
               </div>
             </div>
-          </div>
-          <div class="destination__card">
-            <img src="assets/destination-3.jpg" alt="destination" />
-            <div class="destination__card__content">
-              <h4>Naturaleza viva, cultura indígena y el Parque Tayrona</h4>
-              <h5>Santa Marta</h5>
-              <div class="destination__card__footer">
-                <h6>$1.100.000 COP</h6>
-                <p>(4 días)</p>
+            <div class="about-feature">
+              <div class="about-feature-icon"><i class="ri-customer-service-2-line"></i></div>
+              <div>
+                <h4>Atención 24/7</h4>
+                <p>Nuestro equipo está disponible antes, durante y después de tu viaje, siempre.</p>
               </div>
             </div>
           </div>
         </div>
-        <div class="destination__btn">
-          <button class="btn">
-            Ver Todos
-            <span><i class="ri-arrow-right-long-line"></i></span>
-          </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats-section section-padding">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <h3 data-count="15000">0</h3>
+          <p>Viajeros Satisfechos</p>
+        </div>
+        <div class="stat-item reveal reveal-delay-1">
+          <h3 data-count="50">0</h3>
+          <p>Destinos Disponibles</p>
+        </div>
+        <div class="stat-item reveal reveal-delay-2">
+          <h3 data-count="12">0</h3>
+          <p>Años de Experiencia</p>
+        </div>
+        <div class="stat-item reveal reveal-delay-3">
+          <h3 data-count="98">0</h3>
+          <p>% de Recomendación</p>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="section__container review__container">
-      <div class="review__image">
-        <img src="assets/review.png" alt="review" />
+  <!-- TOURS -->
+  <section class="section-padding" id="tours">
+    <div class="container">
+      <div class="text-center reveal">
+        <span class="section-label">Tipo de Tour</span>
+        <h2 class="section-title">Elige tu Aventura Colombiana</h2>
+        <p class="section-desc">Tenemos el plan perfecto para cada tipo de viajero. Desde playas paradisíacas hasta selvas amazónicas.</p>
       </div>
-      <div class="review__content">
-        <h3 class="section__subheader">Mejores Reseñas</h3>
-        <h2 class="section__header">Lo que dicen nuestros viajeros</h2>
-        <div class="swiper">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide">
-              <div class="review__card">
-                <span class="quote-icon"><i class="ri-double-quotes-l"></i></span>
-                <p class="section__description">
-                  "El tour por el Eje Cafetero fue espectacular. Toda la logística, el hospedaje en las fincas y el tour por Salento fue organizado de manera impecable por Advanto."
-                </p>
+      <div class="tours-grid">
+        <div class="tour-card reveal">
+          <div class="tour-card-img">
+            <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="Playas Caribe">
+            <span class="tour-card-badge">Más Popular</span>
+          </div>
+          <div class="tour-card-body">
+            <h3>Playas y Caribe</h3>
+            <p>Disfruta de aguas cristalinas, arena blanca y el sol caribeño en destinos como San Andrés, Cartagena y Santa Marta.</p>
+            <div class="tour-card-meta">
+              <span><i class="ri-map-pin-line"></i> 8 destinos</span>
+              <span><i class="ri-time-line"></i> 3-7 días</span>
+            </div>
+          </div>
+        </div>
+        <div class="tour-card reveal reveal-delay-1">
+          <div class="tour-card-img">
+            <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Eje Cafetero">
+          </div>
+          <div class="tour-card-body">
+            <h3>Eje Cafetero y Naturaleza</h3>
+            <p>Recorre el paisaje cultural cafetero, visita Salento, el Valle de Cocora y disfruta de la mejor taza de café del mundo.</p>
+            <div class="tour-card-meta">
+              <span><i class="ri-map-pin-line"></i> 5 destinos</span>
+              <span><i class="ri-time-line"></i> 2-5 días</span>
+            </div>
+          </div>
+        </div>
+        <div class="tour-card reveal reveal-delay-2">
+          <div class="tour-card-img">
+            <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Selva">
+            <span class="tour-card-badge">Aventura</span>
+          </div>
+          <div class="tour-card-body">
+            <h3>Aventura en la Selva</h3>
+            <p>Sumérgete en la Amazonía colombiana. Avistamiento de fauna, caminatas ecológicas y encuentro con comunidades indígenas.</p>
+            <div class="tour-card-meta">
+              <span><i class="ri-map-pin-line"></i> 3 destinos</span>
+              <span><i class="ri-time-line"></i> 4-6 días</span>
+            </div>
+          </div>
+        </div>
+        <div class="tour-card reveal reveal-delay-3">
+          <div class="tour-card-img">
+            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultural">
+          </div>
+          <div class="tour-card-body">
+            <h3>Tours Históricos y Culturales</h3>
+            <p>Explora el patrimonio colonial de Colombia, museos de oro, pueblos patrimonio y la vibrante escena cultural de nuestras ciudades.</p>
+            <div class="tour-card-meta">
+              <span><i class="ri-map-pin-line"></i> 12 destinos</span>
+              <span><i class="ri-time-line"></i> 1-4 días</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center" style="margin-top:2.5rem">
+        <a href="#destinations" class="btn btn-outline">Ver Todos los Tours <i class="ri-arrow-right-line"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- DESTINATIONS -->
+  <section class="section-padding" id="destinations" style="background:var(--bg-light)">
+    <div class="container">
+      <div class="text-center reveal">
+        <span class="section-label">Mejores Destinos</span>
+        <h2 class="section-title">Nuestros Destinos Top</h2>
+        <p class="section-desc">Los lugares más solicitados por nuestros viajeros, con los mejores precios y experiencias garantizadas.</p>
+      </div>
+      <div class="destinations-grid">
+        <div class="destination-card reveal">
+          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Cartagena">
+          <div class="destination-overlay">
+            <span class="destination-tag">Caribe</span>
+            <h3>Cartagena de Indias</h3>
+            <p>La joya del Caribe, historia colonial, murallas y romance en cada calle empedrada.</p>
+            <div class="destination-price">
+              <h4>$1.200.000 <span>COP / 4 días</span></h4>
+              <div class="destination-arrow"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="destination-card reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?w=600&q=80" alt="Medellín">
+          <div class="destination-overlay">
+            <span class="destination-tag">Ciudad</span>
+            <h3>Medellín y Antioquia</h3>
+            <p>Color, cultura paisa y vistas impresionantes en Guatapé. La ciudad de la eterna primavera.</p>
+            <div class="destination-price">
+              <h4>$950.000 <span>COP / 3 días</span></h4>
+              <div class="destination-arrow"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="destination-card reveal reveal-delay-2">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Santa Marta">
+          <div class="destination-overlay">
+            <span class="destination-tag">Naturaleza</span>
+            <h3>Santa Marta</h3>
+            <p>Naturaleza viva, cultura indígena y el mágico Parque Nacional Natural Tayrona.</p>
+            <div class="destination-price">
+              <h4>$1.100.000 <span>COP / 4 días</span></h4>
+              <div class="destination-arrow"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="destination-card reveal">
+          <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés">
+          <div class="destination-overlay">
+            <span class="destination-tag">Isla</span>
+            <h3>San Andrés</h3>
+            <p>El mar de los siete colores te espera. Snorkel, buceo y playas de postal en el Caribe colombiano.</p>
+            <div class="destination-price">
+              <h4>$1.499.000 <span>COP / 5 días</span></h4>
+              <div class="destination-arrow"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="destination-card reveal reveal-delay-1">
+          <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Eje Cafetero">
+          <div class="destination-overlay">
+            <span class="destination-tag">Montaña</span>
+            <h3>Eje Cafetero</h3>
+            <p>Salento, Valle de Cocora y fincas cafeteras. Un paisaje cultural declarado Patrimonio de la Humanidad.</p>
+            <div class="destination-price">
+              <h4>$659.000 <span>COP / 3 días</span></h4>
+              <div class="destination-arrow"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="destination-card reveal reveal-delay-2">
+          <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas">
+          <div class="destination-overlay">
+            <span class="destination-tag">Selva</span>
+            <h3>Amazonas (Leticia)</h3>
+            <p>La puerta de entrada a la selva amazónica. Avistamiento de delfines rosados y comunidades indígenas.</p>
+            <div class="destination-price">
+              <h4>$1.499.000 <span>COP / 4 días</span></h4>
+              <div class="destination-arrow"><i class="ri-arrow-right-up-line"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE US -->
+  <section class="section-padding">
+    <div class="container">
+      <div class="text-center reveal">
+        <span class="section-label">¿Por qué elegirnos?</span>
+        <h2 class="section-title">La Experiencia Advanto</h2>
+        <p class="section-desc">No somos solo una agencia de viajes. Somos tus compañeros de aventura en cada paso del camino.</p>
+      </div>
+      <div class="why-grid">
+        <div class="why-card reveal">
+          <div class="why-icon"><i class="ri-calendar-check-line"></i></div>
+          <h3>Reserva Flexible</h3>
+          <p>Cambia las fechas de tu viaje sin costo adicional hasta 15 días antes de la salida. Tu tranquilidad es nuestra prioridad.</p>
+        </div>
+        <div class="why-card reveal reveal-delay-1">
+          <div class="why-icon"><i class="ri-vip-crown-line"></i></div>
+          <h3>Hoteles Premium</h3>
+          <p>Aliados con las mejores cadenas hoteleras del país. Desde boutique hotels hasta resorts todo incluido.</p>
+        </div>
+        <div class="why-card reveal reveal-delay-2">
+          <div class="why-icon"><i class="ri-flight-takeoff-line"></i></div>
+          <h3>Vuelos Incluidos</h3>
+          <p>Nuestros paquetes incluyen tiquetes aéreos con las principales aerolíneas nacionales. Sin costos ocultos.</p>
+        </div>
+        <div class="why-card reveal">
+          <div class="why-icon"><i class="ri-guide-line"></i></div>
+          <h3>Guías Certificados</h3>
+          <p>Todos nuestros tours incluyen guías locales certificados que conocen cada rincón y historia de los destinos.</p>
+        </div>
+        <div class="why-card reveal reveal-delay-1">
+          <div class="why-icon"><i class="ri-hand-coin-line"></i></div>
+          <h3>Pago a Cuotas</h3>
+          <p>Financia tu viaje hasta en 12 cuotas sin intereses con nuestras entidades bancarias aliadas.</p>
+        </div>
+        <div class="why-card reveal reveal-delay-2">
+          <div class="why-icon"><i class="ri-refund-2-line"></i></div>
+          <h3>Garantía de Devolución</h3>
+          <p>Si no quedas satisfecho con el servicio, te devolvemos el 100% de tu dinero en los primeros 24 horas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section-padding" style="background:var(--bg-light)">
+    <div class="container">
+      <div class="text-center reveal">
+        <span class="section-label">Cómo funciona</span>
+        <h2 class="section-title">Reserva tu Viaje en 4 Pasos</h2>
+        <p class="section-desc">Hemos simplificado el proceso para que planear tu próxima aventura sea tan fácil como contar 1, 2, 3.</p>
+      </div>
+      <div class="process-grid">
+        <div class="process-step reveal">
+          <div class="process-num">01</div>
+          <h3>Elige tu Destino</h3>
+          <p>Explora nuestro catálogo de más de 50 destinos en Colombia y selecciona el que más te inspire.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-1">
+          <div class="process-num">02</div>
+          <h3>Personaliza tu Plan</h3>
+          <p>Selecciona fechas, tipo de alojamiento, actividades adicionales y traslados según tus preferencias.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-2">
+          <div class="process-num">03</div>
+          <h3>Reserva Segura</h3>
+          <p>Paga de forma segura con múltiples métodos de pago y recibe tu confirmación al instante.</p>
+        </div>
+        <div class="process-step reveal reveal-delay-3">
+          <div class="process-num">04</div>
+          <h3>Disfruta el Viaje</h3>
+          <p>Nosotros nos encargamos de todo. Solo llega al aeropuerto y comienza tu aventura.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery-section">
+    <div class="gallery-track">
+      <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Colombia">
+      <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="Playa">
+      <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Montaña">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Mar">
+      <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Café">
+      <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura">
+      <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Selva">
+      <img src="https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?w=600&q=80" alt="Ciudad">
+      <!-- Duplicates for infinite scroll -->
+      <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Colombia">
+      <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="Playa">
+      <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Montaña">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Mar">
+      <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Café">
+      <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura">
+      <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Selva">
+      <img src="https://images.unsplash.com/photo-1599571234909-29ed5d1321d6?w=600&q=80" alt="Ciudad">
+    </div>
+  </section>
+
+  <!-- REVIEWS -->
+  <section class="section-padding reviews-section" id="reviews">
+    <div class="container">
+      <div class="reviews-grid">
+        <div class="reveal">
+          <span class="section-label">Testimonios</span>
+          <h2 class="section-title" style="max-width:400px">Lo que dicen nuestros viajeros</h2>
+          <p class="section-desc" style="max-width:400px; margin-bottom:2rem">
+            Miles de colombianos y extranjeros han confiado en nosotros para vivir sus mejores experiencias. Esto es lo que cuentan.
+          </p>
+          <div class="review-highlight">
+            <span class="quote-big">"</span>
+            <p>Advanto superó todas mis expectativas. El tour por el Eje Cafetero fue espectacular. Toda la logística, el hospedaje en las fincas y el tour por Salento fue organizado de manera impecable. ¡Volveré a viajar con ellos sin dudarlo!</p>
+            <div class="review-author">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Camila">
+              <div>
                 <h4>Camila Rodríguez</h4>
-                <h5>Bogotá</h5>
-                <div class="stars">
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                </div>
-              </div>
-            </div>
-            <div class="swiper-slide">
-              <div class="review__card">
-                <span class="quote-icon"><i class="ri-double-quotes-l"></i></span>
-                <p class="section__description">
-                  "Siempre quise ir a San Andrés pero me daba pereza planear. El equipo de Advanto me armó un paquete todo incluido y yo solo me dediqué a disfrutar del mar de los siete colores."
-                </p>
-                <h4>Andrés Felipe</h4>
-                <h5>Cali</h5>
-                <div class="stars">
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                  <span><i class="ri-star-fill"></i></span>
-                </div>
+                <p>Bogotá, Colombia</p>
+                <div class="stars"><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i></div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="blog">
-      <div class="section__container blog__container">
-        <h3 class="section__subheader">Noticias y Blogs</h3>
-        <h2 class="section__header">Conoce más de Colombia</h2>
-        <div class="blog__grid">
-          <div class="blog__card">
-            <img src="assets/blog-1.jpg" alt="blog" />
-            <div class="blog__content">
-              <h4>5 Razones para visitar el Amazonas Colombiano este año</h4>
-              <button class="btn">
-                Leer Más
-                <span><i class="ri-arrow-right-long-line"></i></span>
-              </button>
+        <div class="review-cards">
+          <div class="review-card reveal">
+            <div class="review-card-header">
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Andrés">
+              <div class="stars"><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i></div>
+            </div>
+            <p>"Siempre quise ir a San Andrés pero me daba pereza planear. El equipo de Advanto me armó un paquete todo incluido y yo solo me dediqué a disfrutar del mar de los siete colores."</p>
+            <div class="review-card-footer">
+              <h4>Andrés Felipe</h4>
+              <span>Cali, Colombia</span>
             </div>
           </div>
-          <div class="blog__card">
-            <img src="assets/blog-2.jpg" alt="blog" />
-            <div class="blog__content">
-              <h4>Guía de Supervivencia: Cómo empacar para el Parque Tayrona</h4>
-              <button class="btn">
-                Leer Más
-                <span><i class="ri-arrow-right-long-line"></i></span>
-              </button>
+          <div class="review-card reveal reveal-delay-1">
+            <div class="review-card-header">
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80" alt="Laura">
+              <div class="stars"><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i></div>
+            </div>
+            <p>"La atención al cliente es increíble. Tuve un problema con mi vuelo y ellos lo resolvieron en minutos. Cartagena quedó en mi corazón para siempre."</p>
+            <div class="review-card-footer">
+              <h4>Laura Gómez</h4>
+              <span>Medellín, Colombia</span>
             </div>
           </div>
-          <div class="blog__card">
-            <img src="assets/blog-3.jpg" alt="blog" />
-            <div class="blog__content">
-              <h4>Pueblos Patrimonio: Un recorrido por la historia de Colombia</h4>
-              <button class="btn">
-                Leer Más
-                <span><i class="ri-arrow-right-long-line"></i></span>
-              </button>
+          <div class="review-card reveal">
+            <div class="review-card-header">
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="Carlos">
+              <div class="stars"><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-half-fill"></i></div>
+            </div>
+            <p>"Llevé a mi familia al Amazonas y fue una experiencia educativa y divertida. Los niños quedaron fascinados con los delfines rosados. Totalmente recomendado."</p>
+            <div class="review-card-footer">
+              <h4>Carlos Mendoza</h4>
+              <span>Barranquilla, Colombia</span>
+            </div>
+          </div>
+          <div class="review-card reveal reveal-delay-1">
+            <div class="review-card-header">
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80" alt="Valentina">
+              <div class="stars"><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i></div>
+            </div>
+            <p>"El mejor precio que encontré en el mercado. Comparé con otras agencias y Advanto tenía la mejor relación calidad-precio. Santa Marta fue un sueño."</p>
+            <div class="review-card-footer">
+              <h4>Valentina Ruiz</h4>
+              <span>Pereira, Colombia</span>
             </div>
           </div>
         </div>
-        <div class="blog__btn">
-          <button class="btn">
-            Ver Todos
-            <span><i class="ri-arrow-right-long-line"></i></span>
-          </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section class="section-padding" id="blog">
+    <div class="container">
+      <div class="text-center reveal">
+        <span class="section-label">Noticias y Blogs</span>
+        <h2 class="section-title">Conoce más de Colombia</h2>
+        <p class="section-desc">Tips, guías y recomendaciones para que tu próximo viaje sea perfecto.</p>
+      </div>
+      <div class="blog-grid">
+        <article class="blog-card reveal">
+          <div class="blog-card-img">
+            <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas">
+          </div>
+          <div class="blog-card-body">
+            <div class="blog-card-meta">
+              <span><i class="ri-calendar-line"></i> 12 Ene 2026</span>
+              <span><i class="ri-time-line"></i> 5 min</span>
+            </div>
+            <h3>5 Razones para visitar el Amazonas Colombiano este año</h3>
+            <a href="#" class="read-more">Leer Más <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </article>
+        <article class="blog-card reveal reveal-delay-1">
+          <div class="blog-card-img">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Tayrona">
+          </div>
+          <div class="blog-card-body">
+            <div class="blog-card-meta">
+              <span><i class="ri-calendar-line"></i> 05 Ene 2026</span>
+              <span><i class="ri-time-line"></i> 4 min</span>
+            </div>
+            <h3>Guía de Supervivencia: Cómo empacar para el Parque Tayrona</h3>
+            <a href="#" class="read-more">Leer Más <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </article>
+        <article class="blog-card reveal reveal-delay-2">
+          <div class="blog-card-img">
+            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Pueblos">
+          </div>
+          <div class="blog-card-body">
+            <div class="blog-card-meta">
+              <span><i class="ri-calendar-line"></i> 28 Dic 2025</span>
+              <span><i class="ri-time-line"></i> 6 min</span>
+            </div>
+            <h3>Pueblos Patrimonio: Un recorrido por la historia de Colombia</h3>
+            <a href="#" class="read-more">Leer Más <i class="ri-arrow-right-line"></i></a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section-padding" style="background:var(--bg-light)">
+    <div class="container">
+      <div class="faq-grid">
+        <div class="reveal">
+          <span class="section-label">Preguntas Frecuentes</span>
+          <h2 class="section-title">Resolvemos tus dudas</h2>
+          <p class="section-desc">Si tienes alguna otra pregunta, no dudes en contactarnos por WhatsApp o correo electrónico.</p>
+        </div>
+        <div class="faq-list reveal reveal-delay-1">
+          <div class="faq-item active">
+            <button class="faq-question">
+              ¿Qué incluyen los paquetes de viaje?
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Nuestros paquetes incluyen tiquetes aéreos (si aplica), alojamiento en hoteles seleccionados, desayunos, traslados aeropuerto-hotel-aeropuerto, tours guiados y asistencia médica durante todo el viaje. Puedes personalizarlos agregando actividades adicionales.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question">
+              ¿Puedo pagar a cuotas?
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="faq-answer">
+              <p>¡Sí! Trabajamos con múltiples entidades bancarias para ofrecerte financiación hasta en 12 cuotas sin intereses. También aceptamos pagos con tarjeta de crédito, débito, transferencia bancaria y efectivo en nuestras oficinas.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question">
+              ¿Qué pasa si necesito cancelar mi viaje?
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Ofrecemos políticas de cancelación flexibles. Si cancelas con más de 15 días de anticipación, recibes el 90% de reembolso. Entre 7 y 14 días, el 70%. También puedes reprogramar tu viaje sin costo adicional.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question">
+              ¿Los tours incluyen seguro de viaje?
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Todos nuestros paquetes incluyen seguro de asistencia médica básica. También ofrecemos la opción de upgrade a seguro premium que cubre cancelación, pérdida de equipaje y actividades de aventura.</p>
+            </div>
+          </div>
+          <div class="faq-item">
+            <button class="faq-question">
+              ¿Cómo puedo contactar a un asesor?
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="faq-answer">
+              <p>Puedes escribirnos por WhatsApp, llamarnos a nuestra línea de atención, enviarnos un correo o visitar cualquiera de nuestras 8 oficinas en Medellín y el oriente antioqueño. ¡Estamos para servirte!</p>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="banner">
-      <div class="banner__wrapper">
-        <img src="assets/banner-1.jpg" alt="banner" />
-        <img src="assets/banner-2.jpg" alt="banner" />
-        <img src="assets/banner-3.jpg" alt="banner" />
-        <img src="assets/banner-4.jpg" alt="banner" />
-        <img src="assets/banner-5.jpg" alt="banner" />
-        <img src="assets/banner-6.jpg" alt="banner" />
-        <img src="assets/banner-7.jpg" alt="banner" />
-        <img src="assets/banner-8.jpg" alt="banner" />
+  <!-- PARTNERS -->
+  <section class="section-padding" style="padding:3rem 0">
+    <div class="container">
+      <p class="text-center" style="font-size:0.875rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:1.5rem">Confían en nosotros</p>
+      <div class="partners-track reveal">
+        <span class="partner-item">Avianca</span>
+        <span class="partner-item">LATAM</span>
+        <span class="partner-item">Wingo</span>
+        <span class="partner-item">GHL</span>
+        <span class="partner-item">Decameron</span>
+        <span class="partner-item">Estelar</span>
+        <span class="partner-item">JetSMART</span>
+        <span class="partner-item">Marriott</span>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <footer id="contact">
-      <div class="section__container footer__container">
-        <div class="footer__logo">
-          <img src="assets/logo.png" alt="logo" />
+  <!-- CTA -->
+  <section class="section-padding cta-section">
+    <div class="container">
+      <div class="cta-inner reveal">
+        <h2>¿Listo para tu próxima aventura?</h2>
+        <p>No dejes para mañana el viaje que puedes disfrutar hoy. Contáctanos y recibe una cotización personalizada en minutos.</p>
+        <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap">
+          <a href="#contact" class="btn btn-primary">Cotizar mi Viaje <i class="ri-whatsapp-line"></i></a>
+          <a href="#destinations" class="btn btn-outline">Explorar Destinos</a>
         </div>
-        <ul class="footer__links">
-          <li><a href="#home">Inicio</a></li>
-          <li><a href="#about">Nosotros</a></li>
-          <li><a href="#tour">Tours</a></li>
-          <li><a href="#contact">Contacto</a></li>
-        </ul>
-        <ul class="footer__socials">
-          <li><a href="#"><i class="ri-facebook-fill"></i></a></li>
-          <li><a href="#"><i class="ri-twitter-fill"></i></a></li>
-          <li><a href="#"><i class="ri-instagram-line"></i></a></li>
-          <li><a href="#"><i class="ri-linkedin-fill"></i></a></li>
-        </ul>
       </div>
-      <div class="footer__bar">
-        Copyright © 2026 Advanto Colombia. Todos los derechos reservados.
-      </div>
-    </footer>
+    </div>
+  </section>
 
-    <script src="https://unpkg.com/scrollreveal"></script>
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script> <script src="main.js"></script>
-  </body>
+  <!-- NEWSLETTER -->
+  <section class="section-padding" id="contact">
+    <div class="container">
+      <div class="newsletter-box reveal">
+        <div>
+          <h2>Suscríbete a nuestras ofertas exclusivas</h2>
+          <p>Recibe las mejores promociones, nuevos destinos y tips de viaje directamente en tu correo. Sin spam, solo buenas vibras.</p>
+        </div>
+        <form class="newsletter-form" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte! Pronto recibirás nuestras mejores ofertas.');">
+          <input type="email" placeholder="Tu correo electrónico" required>
+          <button type="submit" class="btn btn-primary">Suscribirme</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>Advan<span>to</span></h3>
+          <p>Tu agencia de viajes de confianza en Colombia. Más de 12 años llevando a los colombianos a descubrir la belleza de su país y del mundo.</p>
+          <div class="footer-socials">
+            <a href="#"><i class="ri-facebook-fill"></i></a>
+            <a href="#"><i class="ri-instagram-line"></i></a>
+            <a href="#"><i class="ri-twitter-x-line"></i></a>
+            <a href="#"><i class="ri-linkedin-fill"></i></a>
+            <a href="#"><i class="ri-youtube-line"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Enlaces Rápidos</h4>
+          <ul>
+            <li><a href="#home">Inicio</a></li>
+            <li><a href="#about">Nosotros</a></li>
+            <li><a href="#tours">Tours</a></li>
+            <li><a href="#destinations">Destinos</a></li>
+            <li><a href="#blog">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Destinos Populares</h4>
+          <ul>
+            <li><a href="#">Cartagena</a></li>
+            <li><a href="#">San Andrés</a></li>
+            <li><a href="#">Santa Marta</a></li>
+            <li><a href="#">Eje Cafetero</a></li>
+            <li><a href="#">Amazonas</a></li>
+          </ul>
+        </div>
+        <div class="footer-col footer-contact">
+          <h4>Contacto</h4>
+          <ul>
+            <li><i class="ri-map-pin-line"></i> Medellín, Antioquia, Colombia</li>
+            <li><i class="ri-phone-line"></i> +57 (604) 123 4567</li>
+            <li><i class="ri-mail-line"></i> hola@advanto.co</li>
+            <li><i classri-whatsapp-line></i> +57 300 000 0000</li>
+            <li><i class="ri-time-line"></i> Lun - Vie: 8am - 6pm</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bar">
+        <p>Copyright © 2026 Advanto Colombia. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MAP MODAL -->
+  <div class="modal-overlay" id="map-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Selecciona tu Destino en Colombia</h3>
+        <button class="modal-close" id="close-map"><i class="ri-close-line"></i></button>
+      </div>
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <!-- SCROLL TOP -->
+  <button class="scroll-top" id="scroll-top"><i class="ri-arrow-up-line"></i></button>
+
+  <!-- SCRIPTS -->
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
+
+  <script>
+    // ===== PRELOADER =====
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('preloader').classList.add('hidden');
+        document.body.classList.remove('loading');
+      }, 1800);
+    });
+
+    // ===== NAVBAR SCROLL =====
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ===== MOBILE MENU =====
+    const mobileMenu = document.getElementById('mobile-menu');
+    document.getElementById('menu-open').addEventListener('click', () => mobileMenu.classList.add('open'));
+    document.getElementById('menu-close').addEventListener('click', () => mobileMenu.classList.remove('open'));
+    document.querySelectorAll('.menu-link').forEach(link => {
+      link.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    });
+
+    // ===== SCROLL REVEAL =====
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ===== COUNTER ANIMATION =====
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.count);
+          const duration = 2000;
+          const start = performance.now();
+          const animate = (now) => {
+            const progress = Math.min((now - start) / duration, 1);
+            const ease = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.floor(ease * target).toLocaleString();
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+          counterObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+    document.querySelectorAll('[data-count]').forEach(el => counterObserver.observe(el));
+
+    // ===== FLATPICKR =====
+    flatpickr('#travel-date', {
+      locale: 'es',
+      dateFormat: 'd \de F, Y',
+      minDate: 'today',
+    });
+
+    // ===== MAP =====
+    const locationInput = document.getElementById('location-input');
+    const mapModal = document.getElementById('map-modal');
+    const closeMapBtn = document.getElementById('close-map');
+    let map;
+
+    const colombiaDestinations = [
+      { name: 'Cartagena', coords: [10.3910, -75.4794] },
+      { name: 'Medellín', coords: [6.2442, -75.5812] },
+      { name: 'San Andrés', coords: [12.5847, -81.7006] },
+      { name: 'Bogotá', coords: [4.7110, -74.0721] },
+      { name: 'Santa Marta', coords: [11.2408, -74.1990] },
+      { name: 'Eje Cafetero (Salento)', coords: [4.6375, -75.5701] },
+      { name: 'Amazonas (Leticia)', coords: [-4.2153, -69.9406] },
+      { name: 'Guatapé', coords: [6.2333, -75.1667] },
+      { name: 'Tayrona', coords: [11.3000, -74.0500] },
+    ];
+
+    document.getElementById('location-trigger').addEventListener('click', () => {
+      mapModal.classList.add('active');
+      if (!map) {
+        map = L.map('map').setView([4.5709, -74.2973], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+        }).addTo(map);
+        colombiaDestinations.forEach(dest => {
+          const marker = L.marker(dest.coords).addTo(map);
+          marker.bindPopup(`<b>${dest.name}</b><br><button class="map-select-btn" data-name="${dest.name}" style="margin-top:8px;padding:6px 12px;background:#01bbbf;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;">Seleccionar</button>`);
+        });
+        map.on('popupopen', () => {
+          const btn = document.querySelector('.map-select-btn');
+          if (btn) {
+            btn.addEventListener('click', function() {
+              locationInput.value = this.getAttribute('data-name');
+              mapModal.classList.remove('active');
+            });
+          }
+        });
+      }
+      setTimeout(() => map.invalidateSize(), 100);
+    });
+
+    closeMapBtn.addEventListener('click', () => mapModal.classList.remove('active'));
+    mapModal.addEventListener('click', (e) => {
+      if (e.target === mapModal) mapModal.classList.remove('active');
+    });
+
+    // ===== WHATSAPP FORM =====
+    document.getElementById('travel-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      let destino = locationInput.value || 'un destino increíble en Colombia';
+      let fecha = document.getElementById('travel-date').value || 'una fecha próxima';
+      const mensaje = `¡Hola equipo de Advanto! ✈️
+
+Me encantaría viajar a *${destino}* el día *${fecha}*.
+
+¿Me podrían compartir más información sobre los planes disponibles, por favor? 🌴😊`;
+      const numeroTelefono = '573000000000';
+      window.open(`https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
+    });
+
+    // ===== FAQ ACCORDION =====
+    document.querySelectorAll('.faq-question').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = btn.parentElement;
+        const isActive = item.classList.contains('active');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+        if (!isActive) item.classList.add('active');
+      });
+    });
+
+    // ===== SCROLL TOP =====
+    const scrollTopBtn = document.getElementById('scroll-top');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 600);
+    });
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
 </html>
