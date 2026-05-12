@@ -1,19 +1,14 @@
-
-html_content = '''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>Advanto | Agencia de Viajes Colombia</title>
   <meta name="description" content="Advanto - Agencia de viajes líder en Colombia. Explora Cartagena, San Andrés, Eje Cafetero, Amazonas y más.">
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 
@@ -39,8 +34,9 @@ html_content = '''<!DOCTYPE html>
       --font: "Poppins", sans-serif;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
     body {
       font-family: var(--font);
       color: var(--text-dark);
@@ -52,42 +48,150 @@ html_content = '''<!DOCTYPE html>
     }
     body.loading { overflow: hidden; height: 100vh; }
 
+    /* ===== GPU ACCELERATION HELPER ===== */
+    .gpu { will-change: transform; transform: translateZ(0); }
+
     /* ===== PRELOADER ===== */
     #preloader {
       position: fixed; inset: 0;
-      background: var(--bg-white);
+      background: #0d1825;
       z-index: 99999;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      transition: opacity 0.8s ease, visibility 0.8s ease;
+      transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.7s;
+      overflow: hidden;
     }
-    #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .preloader-lottie { width: 200px; height: 200px; }
-    .preloader-text {
-      font-family: var(--font);
-      font-size: 1.4rem; font-weight: 800;
-      color: var(--text-dark);
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-top: 0.5rem;
+    #preloader::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, rgba(1,187,191,0.12) 0%, transparent 70%);
     }
-    .preloader-text span { color: var(--primary); }
-    .preloader-dots {
-      display: flex; gap: 0.4rem;
-      margin-top: 0.75rem;
+
+    /* Shooting stars */
+    .stars-bg {
+      position: absolute; inset: 0; overflow: hidden;
+      pointer-events: none;
     }
-    .preloader-dots span {
-      width: 8px; height: 8px;
+    .star {
+      position: absolute;
+      width: 2px; height: 2px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 50%;
+      animation: twinkle var(--d, 3s) var(--delay, 0s) ease-in-out infinite alternate;
+    }
+    @keyframes twinkle {
+      0% { opacity: 0.2; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.4); }
+    }
+
+    .preloader-airplane {
+      position: relative; z-index: 2;
+      width: 180px; height: 180px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Orbit ring */
+    .orbit-ring {
+      position: absolute;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(1,187,191,0.25);
+      animation: orbit-spin 8s linear infinite;
+    }
+    .orbit-dot {
+      position: absolute;
+      top: -5px; left: 50%;
+      transform: translateX(-50%);
+      width: 10px; height: 10px;
       background: var(--primary);
       border-radius: 50%;
-      animation: dot-bounce 1.4s ease-in-out infinite both;
+      box-shadow: 0 0 10px var(--primary), 0 0 20px rgba(1,187,191,0.4);
     }
-    .preloader-dots span:nth-child(1) { animation-delay: -0.32s; }
-    .preloader-dots span:nth-child(2) { animation-delay: -0.16s; }
-    @keyframes dot-bounce {
-      0%, 80%, 100% { transform: scale(0); opacity: 0.4; }
-      40% { transform: scale(1); opacity: 1; }
+    @keyframes orbit-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
+
+    /* Airplane SVG animation */
+    .plane-wrapper {
+      position: relative; z-index: 3;
+      animation: plane-float 2.2s ease-in-out infinite;
+    }
+    @keyframes plane-float {
+      0%, 100% { transform: translateY(0px) rotate(-5deg); }
+      50% { transform: translateY(-12px) rotate(5deg); }
+    }
+    .plane-svg {
+      width: 80px; height: 80px;
+      filter: drop-shadow(0 8px 24px rgba(1,187,191,0.5));
+    }
+
+    /* Exhaust trail */
+    .exhaust-trail {
+      position: absolute;
+      bottom: 20px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column;
+      align-items: center; gap: 3px;
+    }
+    .trail-dot {
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--primary);
+      opacity: 0;
+      animation: trail-fade 1.2s ease-in-out infinite;
+    }
+    .trail-dot:nth-child(1) { animation-delay: 0s; }
+    .trail-dot:nth-child(2) { animation-delay: 0.15s; width: 3px; height: 3px; }
+    .trail-dot:nth-child(3) { animation-delay: 0.3s; width: 2px; height: 2px; }
+    @keyframes trail-fade {
+      0% { opacity: 0; transform: translateY(0) scaleX(1); }
+      40% { opacity: 0.8; }
+      100% { opacity: 0; transform: translateY(10px) scaleX(0.5); }
+    }
+
+    .preloader-brand {
+      position: relative; z-index: 2;
+      margin-top: 1rem;
+      font-size: 1.6rem; font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .preloader-brand span { color: var(--primary); }
+
+    .preloader-tagline {
+      position: relative; z-index: 2;
+      font-size: 0.72rem; font-weight: 400;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-top: 0.35rem;
+    }
+
+    .preloader-progress {
+      position: relative; z-index: 2;
+      width: 200px; height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      margin-top: 1.75rem;
+      overflow: hidden;
+    }
+    .preloader-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), rgba(1,187,191,0.6));
+      border-radius: 2px;
+      animation: progress-fill 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      box-shadow: 0 0 8px var(--primary);
+    }
+    @keyframes progress-fill {
+      0% { width: 0%; }
+      30% { width: 35%; }
+      65% { width: 70%; }
+      100% { width: 100%; }
+    }
+
+    #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
     /* ===== UTILITIES ===== */
     .container { max-width: var(--max-width); margin: 0 auto; padding: 0 1rem; }
@@ -106,19 +210,13 @@ html_content = '''<!DOCTYPE html>
       content: ""; display: block; width: 20px; height: 2px; background: var(--primary);
     }
     .section-title {
-      font-family: var(--font);
       font-size: clamp(1.6rem, 4.5vw, 2.6rem);
-      font-weight: 800;
-      line-height: 1.15;
-      color: var(--text-dark);
-      margin-bottom: 1rem;
+      font-weight: 800; line-height: 1.15;
+      color: var(--text-dark); margin-bottom: 1rem;
     }
     .section-desc {
-      font-size: 1rem;
-      color: var(--text-light);
-      max-width: 540px;
-      line-height: 1.7;
-      font-weight: 400;
+      font-size: 1rem; color: var(--text-light);
+      max-width: 540px; line-height: 1.7; font-weight: 400;
     }
     .text-center { text-align: center; }
     .text-center .section-desc { margin-left: auto; margin-right: auto; }
@@ -127,224 +225,158 @@ html_content = '''<!DOCTYPE html>
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
       padding: 0.8rem 1.5rem;
-      font-family: var(--font);
-      font-size: 0.88rem; font-weight: 600;
-      border: none; border-radius: 100px;
-      cursor: pointer; transition: all 0.3s ease;
-      white-space: nowrap;
-      text-decoration: none;
-      touch-action: manipulation;
+      font-family: var(--font); font-size: 0.88rem; font-weight: 600;
+      border: none; border-radius: 100px; cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+      white-space: nowrap; text-decoration: none; touch-action: manipulation;
+      backface-visibility: hidden;
     }
     .btn-primary {
-      background: var(--primary); color: var(--bg-white);
-      box-shadow: 0 4px 14px rgba(1, 187, 191, 0.35);
+      background: var(--primary); color: #fff;
+      box-shadow: 0 4px 14px rgba(1,187,191,0.35);
     }
-    .btn-primary:hover, .btn-primary:active {
-      background: var(--primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(1, 187, 191, 0.45);
-    }
-    .btn-outline {
-      background: transparent; color: var(--text-dark);
-      border: 2px solid var(--border);
-    }
-    .btn-outline:hover, .btn-outline:active {
-      border-color: var(--primary); color: var(--primary);
-      background: rgba(1, 187, 191, 0.04);
-    }
-    .btn-dark {
-      background: var(--text-dark); color: var(--bg-white);
-    }
-    .btn-dark:hover, .btn-dark:active {
-      background: #2d3d56;
-      transform: translateY(-2px);
-    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(1,187,191,0.5); }
+    .btn-outline { background: transparent; color: var(--text-dark); border: 2px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(1,187,191,0.04); transform: translateY(-1px); }
     .btn-sm { padding: 0.55rem 1.1rem; font-size: 0.82rem; }
-    .btn-icon {
-      width: 44px; height: 44px; padding: 0; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-    }
 
     /* ===== NAVBAR ===== */
     nav {
-      position: fixed; top: 0; left: 0; right: 0;
-      z-index: 1000;
-      transition: all 0.35s ease;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
     }
     nav.scrolled {
       background: rgba(255,255,255,0.96);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
     }
     .nav-inner {
       max-width: var(--max-width); margin: 0 auto;
-      padding: 0.75rem 1rem;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
+      padding: 0 1rem; display: flex; align-items: center;
+      justify-content: space-between; height: 64px;
     }
-    @media (min-width: 640px) { .nav-inner { padding: 0.875rem 1.5rem; height: 68px; } }
+    @media (min-width: 640px) { .nav-inner { padding: 0 1.5rem; height: 68px; } }
     .nav-logo {
-      font-family: var(--font);
-      font-size: 1.5rem; font-weight: 800;
-      color: var(--text-dark);
-      text-decoration: none;
-      display: flex; align-items: center; gap: 0.4rem;
-      z-index: 1002;
+      font-size: 1.5rem; font-weight: 800; color: var(--text-dark);
+      text-decoration: none; display: flex; align-items: center; gap: 0.4rem; z-index: 1002;
     }
-    .nav-logo svg { width: 26px; height: 26px; }
     .nav-logo span { color: var(--primary); }
     .nav-links { display: none; }
     @media (min-width: 1024px) {
       .nav-links {
-        display: flex; align-items: center; gap: 2rem;
-        list-style: none;
+        display: flex; align-items: center; gap: 2rem; list-style: none;
       }
       .nav-links a {
         text-decoration: none; color: var(--text-dark);
         font-size: 0.88rem; font-weight: 500;
         position: relative; padding: 0.25rem 0;
-        transition: color 0.3s;
+        transition: color 0.25s;
       }
       .nav-links a::after {
         content: ""; position: absolute; bottom: -2px; left: 0;
         width: 0; height: 2px; background: var(--primary);
-        transition: width 0.3s ease;
+        transition: width 0.25s ease;
       }
       .nav-links a:hover { color: var(--primary); }
       .nav-links a:hover::after { width: 100%; }
     }
 
-    /* ===== HAMBURGER BUTTON ===== */
     .hamburger {
       width: 44px; height: 44px;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 5px;
-      background: var(--bg-light);
-      border: none; border-radius: var(--radius);
-      cursor: pointer;
-      z-index: 1002;
-      position: relative;
-      padding: 0;
-      touch-action: manipulation;
+      align-items: center; justify-content: center; gap: 5px;
+      background: var(--bg-light); border: none; border-radius: var(--radius);
+      cursor: pointer; z-index: 1002; position: relative; padding: 0; touch-action: manipulation;
     }
     .hamburger span {
-      display: block;
-      width: 20px; height: 2.5px;
-      background: var(--text-dark);
-      border-radius: 2px;
-      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: block; width: 20px; height: 2.5px;
+      background: var(--text-dark); border-radius: 2px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
       transform-origin: center;
     }
-    .hamburger.active span:nth-child(1) {
-      transform: translateY(7.5px) rotate(45deg);
-    }
-    .hamburger.active span:nth-child(2) {
-      opacity: 0; transform: scaleX(0);
-    }
-    .hamburger.active span:nth-child(3) {
-      transform: translateY(-7.5px) rotate(-45deg);
-    }
+    .hamburger.active span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    .hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.active span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
     @media (min-width: 1024px) { .hamburger { display: none; } }
 
-    /* ===== MOBILE MENU ===== */
     .mobile-menu {
-      position: fixed; inset: 0; z-index: 999;
-      background: var(--bg-white);
+      position: fixed; inset: 0; z-index: 999; background: var(--bg-white);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      gap: 0;
       transform: translateX(100%);
-      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 5rem 2rem 2rem;
-      overflow-y: auto;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 5rem 2rem 2rem; overflow-y: auto;
     }
     .mobile-menu.open { transform: translateX(0); }
-    .mobile-menu a, .mobile-menu .btn {
-      font-family: var(--font);
+    .mobile-menu a {
       font-size: 1.5rem; color: var(--text-dark);
       text-decoration: none; font-weight: 700;
       opacity: 0; transform: translateY(20px);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      padding: 0.75rem 0;
-      width: 100%;
-      text-align: center;
+      transition: opacity 0.35s ease, transform 0.35s ease, color 0.2s;
+      padding: 0.75rem 0; width: 100%; text-align: center;
       border-bottom: 1px solid var(--border);
     }
-    .mobile-menu a:last-of-type { border-bottom: none; }
-    .mobile-menu.open a, .mobile-menu.open .btn {
-      opacity: 1; transform: translateY(0);
-    }
-    .mobile-menu.open a:nth-child(1) { transition-delay: 0.08s; }
-    .mobile-menu.open a:nth-child(2) { transition-delay: 0.13s; }
-    .mobile-menu.open a:nth-child(3) { transition-delay: 0.18s; }
-    .mobile-menu.open a:nth-child(4) { transition-delay: 0.23s; }
-    .mobile-menu.open a:nth-child(5) { transition-delay: 0.28s; }
-    .mobile-menu.open a:nth-child(6) { transition-delay: 0.33s; }
-    .mobile-menu.open a:nth-child(7) { transition-delay: 0.38s; }
-    .mobile-menu.open .btn { transition-delay: 0.43s; margin-top: 1rem; }
+    .mobile-menu .btn { font-size: 1rem; border-bottom: none; width: auto; padding: 0.8rem 2rem; margin-top: 1rem; }
+    .mobile-menu.open a, .mobile-menu.open .btn { opacity: 1; transform: translateY(0); }
+    .mobile-menu.open a:nth-child(1) { transition-delay: 0.06s; }
+    .mobile-menu.open a:nth-child(2) { transition-delay: 0.10s; }
+    .mobile-menu.open a:nth-child(3) { transition-delay: 0.14s; }
+    .mobile-menu.open a:nth-child(4) { transition-delay: 0.18s; }
+    .mobile-menu.open a:nth-child(5) { transition-delay: 0.22s; }
+    .mobile-menu.open a:nth-child(6) { transition-delay: 0.26s; }
+    .mobile-menu.open a:nth-child(7) { transition-delay: 0.30s; }
+    .mobile-menu.open .btn { transition-delay: 0.34s; }
     .mobile-menu a:hover { color: var(--primary); }
-    .mobile-menu .btn {
-      font-size: 1rem; border-bottom: none;
-      width: auto; padding: 0.8rem 2rem;
-    }
 
     /* ===== HERO ===== */
     .hero {
-      min-height: 100svh;
-      display: flex; align-items: center;
-      padding-top: 64px;
-      background: var(--bg-light);
+      min-height: 100svh; display: flex; align-items: center;
+      padding-top: 64px; background: var(--bg-light);
       position: relative; overflow: hidden;
     }
     @media (min-width: 640px) { .hero { padding-top: 68px; } }
     .hero-bg-pattern {
-      position: absolute; inset: 0;
-      opacity: 0.3;
+      position: absolute; inset: 0; opacity: 0.25;
       background-image: radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0);
       background-size: 32px 32px;
     }
+    .hero-blob {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, rgba(1,187,191,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-blob-1 { width: 600px; height: 600px; top: -10%; right: -5%; }
+    .hero-blob-2 { width: 400px; height: 400px; bottom: 10%; left: -10%; }
+
     .hero-inner {
       max-width: var(--max-width); margin: 0 auto;
       padding: 2rem 1rem 3rem;
       display: grid; grid-template-columns: 1fr;
-      gap: 2rem; align-items: center;
-      position: relative; z-index: 1;
+      gap: 2rem; align-items: center; position: relative; z-index: 1;
     }
     @media (min-width: 1024px) {
       .hero-inner { grid-template-columns: 1.05fr 0.95fr; gap: 3rem; padding: 3rem 1.5rem 4rem; }
     }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.4rem 0.875rem;
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      font-size: 0.78rem; font-weight: 500;
-      color: var(--text-light);
-      margin-bottom: 1.25rem;
-      box-shadow: var(--shadow-sm);
-      width: fit-content;
+      padding: 0.4rem 0.875rem; background: var(--bg-white);
+      border: 1px solid var(--border); border-radius: 100px;
+      font-size: 0.78rem; font-weight: 500; color: var(--text-light);
+      margin-bottom: 1.25rem; box-shadow: var(--shadow-sm); width: fit-content;
     }
     .hero-badge svg { color: var(--primary); width: 14px; height: 14px; }
     .hero-title {
-      font-family: var(--font);
       font-size: clamp(2rem, 6vw, 3.8rem);
       font-weight: 800; line-height: 1.08;
-      color: var(--text-dark);
-      margin-bottom: 1.25rem;
+      color: var(--text-dark); margin-bottom: 1.25rem;
     }
     .hero-title em {
-      color: var(--primary); font-style: normal;
-      position: relative;
+      color: var(--primary); font-style: normal; position: relative;
     }
     .hero-title em::after {
-      content: "";
-      position: absolute; bottom: 0.05em; left: 0;
+      content: ""; position: absolute; bottom: 0.05em; left: 0;
       width: 100%; height: 0.12em;
-      background: rgba(1, 187, 191, 0.18);
-      z-index: -1;
+      background: rgba(1,187,191,0.18); z-index: -1;
     }
     .hero-desc {
       font-size: 1rem; color: var(--text-light);
@@ -353,685 +385,440 @@ html_content = '''<!DOCTYPE html>
     }
     .hero-cta { display: flex; gap: 0.625rem; flex-wrap: wrap; }
     .hero-stats {
-      display: flex; gap: 1.5rem;
-      margin-top: 2rem; padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
-      flex-wrap: wrap;
+      display: flex; gap: 1.5rem; margin-top: 2rem;
+      padding-top: 1.5rem; border-top: 1px solid var(--border); flex-wrap: wrap;
     }
-    .hero-stat h3 {
-      font-family: var(--font);
-      font-size: 1.6rem; font-weight: 800;
-      color: var(--text-dark);
-    }
-    .hero-stat p {
-      font-size: 0.75rem; color: var(--text-muted);
-      margin-top: 0.1rem; font-weight: 500;
-    }
-    .hero-image-wrap {
-      position: relative;
-      display: none;
-    }
+    .hero-stat h3 { font-size: 1.6rem; font-weight: 800; color: var(--text-dark); }
+    .hero-stat p { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.1rem; font-weight: 500; }
+
+    .hero-image-wrap { position: relative; display: none; }
     @media (min-width: 1024px) { .hero-image-wrap { display: block; } }
     .hero-image-main {
       width: 100%; border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-xl);
-      object-fit: cover; aspect-ratio: 4/5;
+      box-shadow: var(--shadow-xl); object-fit: cover; aspect-ratio: 4/5;
+      will-change: transform;
     }
     .hero-float-card {
-      position: absolute;
-      background: var(--bg-white);
-      border-radius: var(--radius-lg);
-      padding: 0.75rem 1rem;
-      box-shadow: var(--shadow-lg);
-      display: flex; align-items: center; gap: 0.625rem;
-      animation: float-y 4s ease-in-out infinite;
+      position: absolute; background: var(--bg-white);
+      border-radius: var(--radius-lg); padding: 0.75rem 1rem;
+      box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 0.625rem;
+      will-change: transform;
     }
-    .hero-float-card.card-1 { bottom: 8%; left: -6%; animation-delay: 0s; }
-    .hero-float-card.card-2 { top: 6%; right: -4%; animation-delay: 2s; }
-    .hero-float-card img {
-      width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
-    }
+    .hero-float-card.card-1 { bottom: 8%; left: -6%; animation: float-y 4s ease-in-out infinite; }
+    .hero-float-card.card-2 { top: 6%; right: -4%; animation: float-y 4s ease-in-out infinite 2s; }
+    .hero-float-card img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
     .hero-float-card div h4 { font-size: 0.78rem; font-weight: 600; }
     .hero-float-card div p { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.05rem; }
-    .hero-float-card div .stars {
-      color: #f59e0b; font-size: 0.68rem;
-      display: flex; gap: 0.05rem; margin-top: 0.1rem;
-    }
+    .hero-float-card .stars { color: #f59e0b; font-size: 0.68rem; display: flex; gap: 0.05rem; margin-top: 0.1rem; }
     @keyframes float-y {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-10px); }
     }
 
     /* ===== SEARCH BAR ===== */
-    .search-bar-wrap {
-      position: relative; z-index: 10;
-      margin-top: -2rem;
-      padding: 0 1rem;
-    }
+    .search-bar-wrap { position: relative; z-index: 10; margin-top: -2rem; padding: 0 1rem; }
     .search-bar {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-xl);
-      padding: 1.25rem;
+      background: var(--bg-white); border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl); padding: 1.25rem;
       display: grid; grid-template-columns: 1fr;
-      gap: 0.875rem;
-      max-width: 860px; margin: 0 auto;
+      gap: 0.875rem; max-width: 860px; margin: 0 auto;
       border: 1px solid var(--border);
     }
     @media (min-width: 768px) {
-      .search-bar {
-        grid-template-columns: 1fr 1fr auto;
-        padding: 0.875rem 1.25rem;
-        align-items: end;
-        gap: 1rem;
-      }
+      .search-bar { grid-template-columns: 1fr 1fr auto; padding: 0.875rem 1.25rem; align-items: end; gap: 1rem; }
     }
     .search-field label {
       display: block; font-size: 0.7rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      color: var(--text-muted); margin-bottom: 0.35rem;
+      text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.35rem;
     }
     .search-field .input-wrap {
       display: flex; align-items: center; gap: 0.5rem;
-      padding: 0.6rem 0.875rem;
-      border: 2px solid var(--border);
+      padding: 0.6rem 0.875rem; border: 2px solid var(--border);
       border-radius: var(--radius);
-      transition: border-color 0.3s, box-shadow 0.3s;
-      cursor: pointer;
-      min-height: 48px;
+      transition: border-color 0.2s, box-shadow 0.2s; cursor: pointer; min-height: 48px;
     }
     .search-field .input-wrap:hover, .search-field .input-wrap:focus-within {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(1, 187, 191, 0.08);
+      border-color: var(--primary); box-shadow: 0 0 0 3px rgba(1,187,191,0.08);
     }
     .search-field .input-wrap svg { color: var(--primary); width: 16px; height: 16px; flex-shrink: 0; }
     .search-field input {
       border: none; outline: none; background: transparent;
-      font-family: var(--font); font-size: 0.88rem;
-      font-weight: 500; color: var(--text-dark);
-      width: 100%; cursor: pointer;
+      font-family: var(--font); font-size: 0.88rem; font-weight: 500;
+      color: var(--text-dark); width: 100%; cursor: pointer;
     }
     .search-field input::placeholder { color: var(--text-muted); }
     .search-btn {
-      height: 48px; width: 48px;
-      border-radius: 50%;
+      height: 48px; width: 48px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      background: var(--text-dark); color: var(--bg-white);
-      border: none; cursor: pointer;
-      transition: all 0.3s;
-      flex-shrink: 0;
+      background: var(--text-dark); color: #fff; border: none; cursor: pointer;
+      transition: background 0.2s, transform 0.2s; flex-shrink: 0;
     }
     .search-btn:hover { background: var(--primary); transform: scale(1.05); }
     .search-btn svg { width: 18px; height: 18px; }
 
+    /* ===== REVEAL ANIMATIONS (CSS-only, no GSAP thrashing) ===== */
+    .reveal {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.revealed { opacity: 1; transform: translateY(0); }
+
+    /* Stagger children */
+    .reveal-stagger > * {
+      opacity: 0; transform: translateY(28px);
+      transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-stagger.revealed > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0s; }
+    .reveal-stagger.revealed > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.08s; }
+    .reveal-stagger.revealed > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.16s; }
+    .reveal-stagger.revealed > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+    .reveal-stagger.revealed > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.08s; }
+    .reveal-stagger.revealed > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 0.16s; }
+
+    /* Scale in */
+    .reveal-scale {
+      opacity: 0; transform: scale(0.94);
+      transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-scale.revealed { opacity: 1; transform: scale(1); }
+
+    /* Hero entrance */
+    .hero-entrance { opacity: 0; transform: translateY(22px); }
+    .hero-entrance.go {
+      animation: hero-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes hero-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-entrance:nth-child(1).go { animation-delay: 0.1s; }
+    .hero-entrance:nth-child(2).go { animation-delay: 0.2s; }
+    .hero-entrance:nth-child(3).go { animation-delay: 0.3s; }
+    .hero-entrance:nth-child(4).go { animation-delay: 0.4s; }
+    .hero-entrance:nth-child(5).go { animation-delay: 0.5s; }
+
+    .hero-img-entrance { opacity: 0; transform: translateX(40px); }
+    .hero-img-entrance.go {
+      animation: hero-img-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+    }
+    @keyframes hero-img-in {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
     /* ===== ABOUT ===== */
-    .about-grid {
-      display: grid; grid-template-columns: 1fr;
-      gap: 2.5rem; align-items: center;
-    }
-    @media (min-width: 1024px) {
-      .about-grid { grid-template-columns: 1fr 1fr; gap: 4rem; }
-    }
-    .about-images {
-      position: relative;
-      display: none;
-    }
+    .about-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; }
+    @media (min-width: 1024px) { .about-grid { grid-template-columns: 1fr 1fr; gap: 4rem; } }
+    .about-images { position: relative; display: none; }
     @media (min-width: 768px) { .about-images { display: block; } }
-    .about-img-main {
-      width: 88%; border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-lg);
-      aspect-ratio: 3/4; object-fit: cover;
-    }
+    .about-img-main { width: 88%; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); aspect-ratio: 3/4; object-fit: cover; }
     .about-img-secondary {
       position: absolute; bottom: -1.25rem; right: 0;
       width: 48%; border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xl);
-      border: 5px solid var(--bg-white);
+      box-shadow: var(--shadow-xl); border: 5px solid var(--bg-white);
       aspect-ratio: 1; object-fit: cover;
     }
     .about-experience {
       position: absolute; top: 1.25rem; right: 5%;
-      background: var(--primary); color: var(--bg-white);
-      padding: 1rem 1.1rem;
-      border-radius: var(--radius-lg);
-      text-align: center;
-      box-shadow: var(--shadow-lg);
+      background: var(--primary); color: #fff;
+      padding: 1rem 1.1rem; border-radius: var(--radius-lg);
+      text-align: center; box-shadow: var(--shadow-lg);
     }
-    .about-experience h3 {
-      font-family: var(--font);
-      font-size: 2rem; font-weight: 800;
-    }
-    .about-experience p {
-      font-size: 0.72rem; font-weight: 500;
-      opacity: 0.9; line-height: 1.3;
-    }
-    .about-features {
-      display: grid; gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
+    .about-experience h3 { font-size: 2rem; font-weight: 800; }
+    .about-experience p { font-size: 0.72rem; font-weight: 500; opacity: 0.9; line-height: 1.3; }
+    .about-features { display: grid; gap: 0.75rem; margin-top: 1.5rem; }
     .about-feature {
-      display: flex; gap: 0.75rem;
-      padding: 0.875rem;
-      border-radius: var(--radius);
-      background: var(--bg-light);
-      transition: all 0.3s;
+      display: flex; gap: 0.75rem; padding: 0.875rem;
+      border-radius: var(--radius); background: var(--bg-light);
+      transition: background 0.25s ease, transform 0.25s ease;
     }
-    .about-feature:hover {
-      background: var(--primary-light);
-      transform: translateX(4px);
-    }
+    .about-feature:hover { background: var(--primary-light); transform: translateX(4px); }
     .about-feature-icon {
-      width: 42px; height: 42px; min-width: 42px;
-      border-radius: var(--radius);
-      background: rgba(1, 187, 191, 0.1);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--primary);
+      width: 42px; height: 42px; min-width: 42px; border-radius: var(--radius);
+      background: rgba(1,187,191,0.1); display: flex; align-items: center; justify-content: center; color: var(--primary);
     }
     .about-feature-icon svg { width: 18px; height: 18px; }
     .about-feature h4 { font-size: 0.92rem; font-weight: 600; margin-bottom: 0.1rem; }
     .about-feature p { font-size: 0.78rem; color: var(--text-light); line-height: 1.5; }
 
     /* ===== STATS ===== */
-    .stats-section {
-      background: var(--text-dark);
-      color: var(--bg-white);
-    }
-    .stats-grid {
-      display: grid; grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem; text-align: center;
-    }
-    @media (min-width: 768px) {
-      .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 2rem; }
-    }
-    .stat-item h3 {
-      font-family: var(--font);
-      font-size: 2.2rem; font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 0.25rem;
-    }
-    .stat-item p {
-      font-size: 0.82rem; color: rgba(255,255,255,0.65);
-      font-weight: 500;
-    }
+    .stats-section { background: var(--text-dark); color: #fff; }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; text-align: center; }
+    @media (min-width: 768px) { .stats-grid { grid-template-columns: repeat(4, 1fr); gap: 2rem; } }
+    .stat-item h3 { font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.25rem; }
+    .stat-item p { font-size: 0.82rem; color: rgba(255,255,255,0.6); font-weight: 500; }
 
     /* ===== TOURS ===== */
-    .tours-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-      margin-top: 2.5rem;
-    }
+    .tours-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-top: 2.5rem; }
     @media (min-width: 640px) { .tours-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .tours-grid { grid-template-columns: repeat(4, 1fr); } }
     .tour-card {
-      background: var(--bg-white);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      cursor: pointer;
+      background: var(--bg-white); border-radius: var(--radius-lg);
+      overflow: hidden; border: 1px solid var(--border); cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                  box-shadow 0.3s ease, border-color 0.3s ease;
     }
-    .tour-card:hover {
-      transform: translateY(-8px);
-      box-shadow: var(--shadow-xl);
-      border-color: transparent;
-    }
-    .tour-card-img {
-      height: 200px; overflow: hidden; position: relative;
-    }
+    .tour-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-xl); border-color: transparent; }
+    .tour-card-img { height: 200px; overflow: hidden; position: relative; }
     @media (min-width: 768px) { .tour-card-img { height: 220px; } }
     .tour-card-img img {
       width: 100%; height: 100%; object-fit: cover;
-      transition: transform 0.7s ease;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .tour-card:hover .tour-card-img img { transform: scale(1.1); }
+    .tour-card:hover .tour-card-img img { transform: scale(1.08); }
     .tour-card-badge {
       position: absolute; top: 0.75rem; left: 0.75rem;
-      background: var(--primary); color: var(--bg-white);
-      padding: 0.3rem 0.7rem;
-      border-radius: 100px; font-size: 0.68rem;
-      font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.05em;
+      background: var(--primary); color: #fff;
+      padding: 0.3rem 0.7rem; border-radius: 100px;
+      font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
     }
     .tour-card-body { padding: 1.25rem; }
-    .tour-card-body h3 {
-      font-size: 1.05rem; font-weight: 700;
-      margin-bottom: 0.4rem;
-    }
-    .tour-card-body p {
-      font-size: 0.8rem; color: var(--text-light);
-      margin-bottom: 0.875rem; line-height: 1.6;
-    }
-    .tour-card-meta {
-      display: flex; align-items: center; gap: 1rem;
-      font-size: 0.76rem; color: var(--text-muted);
-    }
+    .tour-card-body h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .tour-card-body p { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.875rem; line-height: 1.6; }
+    .tour-card-meta { display: flex; align-items: center; gap: 1rem; font-size: 0.76rem; color: var(--text-muted); }
     .tour-card-meta span { display: flex; align-items: center; gap: 0.25rem; }
     .tour-card-meta svg { width: 13px; height: 13px; }
 
     /* ===== DESTINATIONS ===== */
-    .destinations-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
-      margin-top: 2.5rem;
-    }
+    .destinations-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-top: 2.5rem; }
     @media (min-width: 640px) { .destinations-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .destinations-grid { grid-template-columns: repeat(3, 1fr); } }
     .destination-card {
-      position: relative;
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      aspect-ratio: 3/4;
-      cursor: pointer;
+      position: relative; border-radius: var(--radius-lg);
+      overflow: hidden; aspect-ratio: 3/4; cursor: pointer;
     }
     @media (min-width: 768px) { .destination-card { aspect-ratio: 4/5; } }
     .destination-card img {
       width: 100%; height: 100%; object-fit: cover;
-      transition: transform 0.8s ease;
+      transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .destination-card:hover img { transform: scale(1.1); }
+    .destination-card:hover img { transform: scale(1.08); }
     .destination-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(29,41,61,0.92) 0%, rgba(29,41,61,0.35) 50%, transparent 100%);
-      display: flex; flex-direction: column;
-      justify-content: flex-end;
-      padding: 1.25rem;
-      transition: all 0.4s;
+      background: linear-gradient(to top, rgba(29,41,61,0.92) 0%, rgba(29,41,61,0.3) 50%, transparent 100%);
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 1.25rem;
+      transition: background 0.35s ease;
     }
     .destination-card:hover .destination-overlay {
-      background: linear-gradient(to top, rgba(29,41,61,0.95) 0%, rgba(29,41,61,0.5) 60%, transparent 100%);
+      background: linear-gradient(to top, rgba(29,41,61,0.96) 0%, rgba(29,41,61,0.5) 60%, transparent 100%);
     }
     .destination-tag {
-      display: inline-block;
-      background: var(--primary); color: var(--bg-white);
-      padding: 0.22rem 0.65rem;
-      border-radius: 100px; font-size: 0.68rem;
-      font-weight: 600; margin-bottom: 0.625rem;
-      width: fit-content; text-transform: uppercase;
-      letter-spacing: 0.05em;
+      display: inline-block; background: var(--primary); color: #fff;
+      padding: 0.22rem 0.65rem; border-radius: 100px; font-size: 0.68rem;
+      font-weight: 600; margin-bottom: 0.625rem; width: fit-content;
+      text-transform: uppercase; letter-spacing: 0.05em;
     }
-    .destination-overlay h3 {
-      font-family: var(--font);
-      font-size: 1.3rem; font-weight: 700;
-      color: var(--bg-white); margin-bottom: 0.4rem;
-    }
-    .destination-overlay p {
-      font-size: 0.8rem; color: rgba(255,255,255,0.8);
-      margin-bottom: 0.875rem; line-height: 1.5;
-    }
-    .destination-price {
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .destination-price h4 {
-      font-size: 1.1rem; font-weight: 700; color: var(--bg-white);
-    }
-    .destination-price h4 span {
-      font-size: 0.68rem; font-weight: 400;
-      color: rgba(255,255,255,0.6);
-    }
+    .destination-overlay h3 { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+    .destination-overlay p { font-size: 0.8rem; color: rgba(255,255,255,0.8); margin-bottom: 0.875rem; line-height: 1.5; }
+    .destination-price { display: flex; align-items: center; justify-content: space-between; }
+    .destination-price h4 { font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .destination-price h4 span { font-size: 0.68rem; font-weight: 400; color: rgba(255,255,255,0.6); }
     .destination-arrow {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--bg-white);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--primary);
-      transform: translateX(-10px); opacity: 0;
-      transition: all 0.3s ease;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: #fff; display: flex; align-items: center; justify-content: center; color: var(--primary);
+      transform: translateX(-8px); opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
-    .destination-card:hover .destination-arrow {
-      transform: translateX(0); opacity: 1;
-    }
+    .destination-card:hover .destination-arrow { transform: translateX(0); opacity: 1; }
     .destination-arrow svg { width: 16px; height: 16px; }
 
     /* ===== WHY US ===== */
-    .why-grid {
-      display: grid; grid-template-columns: 1fr;
-      gap: 1rem; margin-top: 2.5rem;
-    }
+    .why-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 2.5rem; }
     @media (min-width: 640px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .why-grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; } }
     .why-card {
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      transition: all 0.35s ease;
+      background: var(--bg-white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1.5rem;
+      transition: border-color 0.25s, box-shadow 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .why-card:hover {
-      border-color: var(--primary);
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-4px);
-    }
+    .why-card:hover { border-color: var(--primary); box-shadow: var(--shadow-lg); transform: translateY(-4px); }
     .why-icon {
-      width: 48px; height: 48px;
-      border-radius: var(--radius);
-      background: rgba(1, 187, 191, 0.08);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--primary);
-      margin-bottom: 1rem;
+      width: 48px; height: 48px; border-radius: var(--radius);
+      background: rgba(1,187,191,0.08); display: flex; align-items: center; justify-content: center;
+      color: var(--primary); margin-bottom: 1rem;
+      transition: background 0.25s, transform 0.25s;
     }
+    .why-card:hover .why-icon { background: rgba(1,187,191,0.15); transform: scale(1.1); }
     .why-icon svg { width: 20px; height: 20px; }
     .why-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; }
     .why-card p { font-size: 0.82rem; color: var(--text-light); line-height: 1.6; }
 
     /* ===== PROCESS ===== */
-    .process-grid {
-      display: grid; grid-template-columns: 1fr;
-      gap: 2rem; margin-top: 2.5rem;
-      position: relative;
-    }
+    .process-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-top: 2.5rem; position: relative; }
     @media (min-width: 768px) { .process-grid { grid-template-columns: repeat(4, 1fr); } }
-    .process-step {
-      text-align: center; position: relative;
-    }
+    .process-step { text-align: center; position: relative; }
     @media (min-width: 768px) {
       .process-step:not(:last-child)::after {
-        content: ""; position: absolute;
-        top: 1.75rem; right: -50%;
-        width: 100%; height: 2px;
-        background: var(--border);
-        z-index: 0;
+        content: ""; position: absolute; top: 1.75rem; right: -50%;
+        width: 100%; height: 2px; background: var(--border); z-index: 0;
       }
     }
     .process-num {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: var(--bg-white);
-      border: 2px solid var(--border);
+      width: 56px; height: 56px; border-radius: 50%;
+      background: var(--bg-white); border: 2px solid var(--border);
       display: flex; align-items: center; justify-content: center;
-      font-family: var(--font);
-      font-size: 1.25rem; font-weight: 800;
-      color: var(--primary);
-      margin: 0 auto 1rem;
-      position: relative; z-index: 1;
-      transition: all 0.4s ease;
+      font-size: 1.25rem; font-weight: 800; color: var(--primary);
+      margin: 0 auto 1rem; position: relative; z-index: 1;
+      transition: background 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .process-step:hover .process-num {
-      background: var(--primary); color: var(--bg-white);
-      border-color: var(--primary);
-      box-shadow: 0 0 0 8px rgba(1, 187, 191, 0.1);
-      transform: scale(1.1);
+      background: var(--primary); color: #fff; border-color: var(--primary);
+      box-shadow: 0 0 0 8px rgba(1,187,191,0.12);
+      transform: scale(1.12);
     }
     .process-step h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem; }
     .process-step p { font-size: 0.82rem; color: var(--text-light); line-height: 1.6; }
 
-    /* ===== GALLERY ===== */
+    /* ===== GALLERY (pure CSS, no JS needed) ===== */
     .gallery-section { overflow: hidden; padding: 1.25rem 0; }
     .gallery-track {
       display: flex; gap: 0.75rem;
-      animation: scroll-gallery 50s linear infinite;
       width: max-content;
+      animation: scroll-gallery 55s linear infinite;
     }
-    .gallery-track:hover { animation-play-state: paused; }
+    .gallery-section:hover .gallery-track { animation-play-state: paused; }
     .gallery-track img {
-      height: 200px; width: 280px;
-      object-fit: cover; border-radius: var(--radius-lg);
-      transition: transform 0.4s;
-      flex-shrink: 0;
+      height: 200px; width: 280px; object-fit: cover;
+      border-radius: var(--radius-lg); flex-shrink: 0;
+      transition: transform 0.35s ease, filter 0.35s ease;
     }
-    @media (min-width: 768px) {
-      .gallery-track img { height: 260px; width: 360px; }
-    }
-    .gallery-track img:hover { transform: scale(1.03); }
-    @keyframes scroll-gallery {
-      to { transform: translateX(-50%); }
-    }
+    @media (min-width: 768px) { .gallery-track img { height: 260px; width: 360px; } }
+    .gallery-track img:hover { transform: scale(1.04); filter: brightness(1.05); }
+    @keyframes scroll-gallery { to { transform: translateX(-50%); } }
 
     /* ===== REVIEWS ===== */
     .reviews-section { background: var(--bg-light); }
-    .reviews-grid {
-      display: grid; grid-template-columns: 1fr;
-      gap: 2.5rem; align-items: center;
-    }
-    @media (min-width: 1024px) {
-      .reviews-grid { grid-template-columns: 0.85fr 1.15fr; gap: 3.5rem; }
-    }
+    .reviews-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; }
+    @media (min-width: 1024px) { .reviews-grid { grid-template-columns: 0.85fr 1.15fr; gap: 3.5rem; } }
     .review-highlight {
-      background: var(--text-dark); color: var(--bg-white);
-      border-radius: var(--radius-xl);
-      padding: 1.75rem;
-      position: relative;
+      background: var(--text-dark); color: #fff;
+      border-radius: var(--radius-xl); padding: 1.75rem; position: relative;
     }
     @media (min-width: 768px) { .review-highlight { padding: 2.25rem; } }
     .review-highlight .quote-big {
-      font-family: var(--font);
-      font-size: 3.5rem; line-height: 1;
-      color: var(--primary); opacity: 0.2;
-      position: absolute; top: 0.5rem; left: 1rem;
+      font-size: 3.5rem; line-height: 1; color: var(--primary); opacity: 0.2;
+      position: absolute; top: 0.5rem; left: 1rem; pointer-events: none;
     }
-    .review-highlight p {
-      font-size: 0.95rem; line-height: 1.8;
-      margin-bottom: 1.25rem; position: relative; z-index: 1;
-      font-style: italic;
-    }
+    .review-highlight p { font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.25rem; position: relative; z-index: 1; font-style: italic; }
     .review-author { display: flex; align-items: center; gap: 0.75rem; }
-    .review-author img {
-      width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
-      border: 2.5px solid var(--primary);
-    }
+    .review-author img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2.5px solid var(--primary); }
     .review-author h4 { font-size: 0.9rem; font-weight: 600; }
     .review-author p { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin: 0; }
-    .review-author .stars {
-      color: #f59e0b; font-size: 0.78rem;
-      display: flex; gap: 0.1rem; margin-top: 0.15rem;
-    }
-    .review-cards {
-      display: grid; gap: 1rem;
-    }
+    .review-author .stars { color: #f59e0b; font-size: 0.78rem; display: flex; gap: 0.1rem; margin-top: 0.15rem; }
+    .review-cards { display: grid; gap: 1rem; }
     @media (min-width: 640px) { .review-cards { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; } }
     .review-card {
-      background: var(--bg-white);
-      border-radius: var(--radius-lg);
-      padding: 1.25rem;
-      border: 1px solid var(--border);
-      transition: all 0.35s;
+      background: var(--bg-white); border-radius: var(--radius-lg);
+      padding: 1.25rem; border: 1px solid var(--border);
+      transition: box-shadow 0.3s, border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .review-card:hover {
-      box-shadow: var(--shadow-lg);
-      border-color: transparent;
-      transform: translateY(-4px);
-    }
-    .review-card-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-    .review-card-header img {
-      width: 38px; height: 38px; border-radius: 50%; object-fit: cover;
-    }
-    .review-card-header .stars {
-      color: #f59e0b; font-size: 0.78rem;
-      display: flex; gap: 0.1rem;
-    }
-    .review-card p {
-      font-size: 0.82rem; color: var(--text-light);
-      line-height: 1.7; font-style: italic;
-    }
-    .review-card-footer {
-      margin-top: 0.875rem;
-      padding-top: 0.75rem; border-top: 1px solid var(--border);
-    }
+    .review-card:hover { box-shadow: var(--shadow-lg); border-color: transparent; transform: translateY(-4px); }
+    .review-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+    .review-card-header img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+    .review-card-header .stars { color: #f59e0b; font-size: 0.78rem; display: flex; gap: 0.1rem; }
+    .review-card p { font-size: 0.82rem; color: var(--text-light); line-height: 1.7; font-style: italic; }
+    .review-card-footer { margin-top: 0.875rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
     .review-card-footer h4 { font-size: 0.88rem; font-weight: 600; }
     .review-card-footer span { font-size: 0.76rem; color: var(--text-muted); }
 
     /* ===== BLOG ===== */
-    .blog-grid {
-      display: grid; grid-template-columns: 1fr;
-      gap: 1.25rem; margin-top: 2.5rem;
-    }
+    .blog-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-top: 2.5rem; }
     @media (min-width: 640px) { .blog-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .blog-grid { grid-template-columns: repeat(3, 1fr); } }
     .blog-card {
-      background: var(--bg-white);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      background: var(--bg-white); border-radius: var(--radius-lg);
+      overflow: hidden; border: 1px solid var(--border);
+      transition: box-shadow 0.3s, border-color 0.3s, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .blog-card:hover {
-      box-shadow: var(--shadow-xl);
-      border-color: transparent;
-      transform: translateY(-6px);
-    }
-    .blog-card-img {
-      height: 190px; overflow: hidden;
-    }
+    .blog-card:hover { box-shadow: var(--shadow-xl); border-color: transparent; transform: translateY(-6px); }
+    .blog-card-img { height: 190px; overflow: hidden; }
     @media (min-width: 768px) { .blog-card-img { height: 220px; } }
     .blog-card-img img {
       width: 100%; height: 100%; object-fit: cover;
-      transition: transform 0.6s;
+      transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .blog-card:hover .blog-card-img img { transform: scale(1.08); }
     .blog-card-body { padding: 1.25rem; }
-    .blog-card-meta {
-      display: flex; gap: 1rem;
-      font-size: 0.74rem; color: var(--text-muted);
-      margin-bottom: 0.625rem;
-      font-weight: 500;
-    }
+    .blog-card-meta { display: flex; gap: 1rem; font-size: 0.74rem; color: var(--text-muted); margin-bottom: 0.625rem; font-weight: 500; }
     .blog-card-meta span { display: flex; align-items: center; gap: 0.3rem; }
     .blog-card-meta svg { width: 12px; height: 12px; }
-    .blog-card-body h3 {
-      font-size: 1rem; font-weight: 700;
-      line-height: 1.4; margin-bottom: 0.75rem;
-      transition: color 0.3s;
-    }
+    .blog-card-body h3 { font-size: 1rem; font-weight: 700; line-height: 1.4; margin-bottom: 0.75rem; transition: color 0.25s; }
     .blog-card:hover .blog-card-body h3 { color: var(--primary); }
-    .read-more {
-      display: inline-flex; align-items: center; gap: 0.35rem;
-      font-size: 0.82rem; font-weight: 600;
-      color: var(--primary); text-decoration: none;
-    }
-    .read-more svg { width: 14px; height: 14px; transition: transform 0.3s; }
+    .read-more { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem; font-weight: 600; color: var(--primary); text-decoration: none; }
+    .read-more svg { width: 14px; height: 14px; transition: transform 0.25s ease; }
     .blog-card:hover .read-more svg { transform: translateX(4px); }
 
     /* ===== FAQ ===== */
-    .faq-grid {
-      display: grid; grid-template-columns: 1fr;
-      gap: 2rem; margin-top: 2.5rem;
-    }
+    .faq-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; margin-top: 2.5rem; }
     @media (min-width: 1024px) { .faq-grid { grid-template-columns: 0.4fr 1fr; gap: 3.5rem; } }
     .faq-list { display: flex; flex-direction: column; gap: 0.75rem; }
     .faq-item {
-      background: var(--bg-white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      overflow: hidden;
-      transition: all 0.3s;
+      background: var(--bg-white); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); overflow: hidden;
+      transition: border-color 0.25s;
     }
     .faq-item:hover { border-color: var(--primary); }
     .faq-question {
       width: 100%; padding: 1rem 1.25rem;
       display: flex; align-items: center; justify-content: space-between;
       background: none; border: none; cursor: pointer;
-      font-family: var(--font);
-      font-size: 0.92rem; font-weight: 600;
-      color: var(--text-dark); text-align: left;
-      gap: 1rem;
-      min-height: 56px;
+      font-family: var(--font); font-size: 0.92rem; font-weight: 600;
+      color: var(--text-dark); text-align: left; gap: 1rem; min-height: 56px;
     }
     .faq-question svg {
-      width: 18px; height: 18px; color: var(--primary);
-      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      flex-shrink: 0;
+      width: 18px; height: 18px; color: var(--primary); flex-shrink: 0;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .faq-item.active .faq-question svg { transform: rotate(180deg); }
     .faq-answer {
       max-height: 0; overflow: hidden;
-      transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), padding 0.4s ease;
+      transition: max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1), padding 0.35s ease;
     }
-    .faq-item.active .faq-answer {
-      max-height: 300px;
-      padding: 0 1.25rem 1rem;
-    }
-    .faq-answer p {
-      font-size: 0.82rem; color: var(--text-light); line-height: 1.7;
-    }
+    .faq-item.active .faq-answer { max-height: 300px; padding: 0 1.25rem 1rem; }
+    .faq-answer p { font-size: 0.82rem; color: var(--text-light); line-height: 1.7; }
 
     /* ===== PARTNERS ===== */
-    .partners-track {
-      display: flex; align-items: center; justify-content: center;
-      gap: 1.5rem; flex-wrap: wrap;
-      margin-top: 1.5rem;
-    }
+    .partners-track { display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 1.5rem; }
     @media (min-width: 768px) { .partners-track { gap: 2.5rem; } }
     .partner-item {
-      font-family: var(--font);
-      font-size: 1.1rem; font-weight: 700;
-      color: var(--text-muted);
-      opacity: 0.5;
-      transition: all 0.3s;
+      font-size: 1.1rem; font-weight: 700; color: var(--text-muted);
+      opacity: 0.45; transition: opacity 0.25s, color 0.25s, transform 0.25s;
       filter: grayscale(100%);
     }
     @media (min-width: 768px) { .partner-item { font-size: 1.4rem; } }
-    .partner-item:hover {
-      opacity: 1; color: var(--text-dark);
-      filter: grayscale(0%);
-    }
+    .partner-item:hover { opacity: 1; color: var(--text-dark); filter: grayscale(0%); transform: translateY(-2px); }
 
     /* ===== CTA ===== */
-    .cta-section {
-      position: relative;
-      background: var(--bg-light);
-      overflow: hidden;
-    }
+    .cta-section { position: relative; background: var(--bg-light); overflow: hidden; }
     .cta-section::before {
-      content: ""; position: absolute;
-      top: -40%; right: -15%;
+      content: ""; position: absolute; top: -40%; right: -15%;
       width: 400px; height: 400px;
-      background: rgba(1, 187, 191, 0.04);
-      border-radius: 50%;
+      background: rgba(1,187,191,0.05); border-radius: 50%;
     }
-    .cta-inner {
-      position: relative; z-index: 1;
-      text-align: center; max-width: 600px; margin: 0 auto;
-    }
-    .cta-inner h2 {
-      font-family: var(--font);
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 800;
-      margin-bottom: 0.75rem;
-    }
+    .cta-inner { position: relative; z-index: 1; text-align: center; max-width: 600px; margin: 0 auto; }
+    .cta-inner h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 800; margin-bottom: 0.75rem; }
     .cta-inner p { color: var(--text-light); margin-bottom: 1.5rem; font-size: 1rem; }
     .cta-buttons { display: flex; gap: 0.625rem; justify-content: center; flex-wrap: wrap; }
 
     /* ===== NEWSLETTER ===== */
     .newsletter-box {
-      background: var(--text-dark);
-      border-radius: var(--radius-xl);
-      padding: 2rem 1.25rem;
-      display: grid; grid-template-columns: 1fr;
+      background: var(--text-dark); border-radius: var(--radius-xl);
+      padding: 2rem 1.25rem; display: grid; grid-template-columns: 1fr;
       gap: 1.25rem; align-items: center;
     }
-    @media (min-width: 1024px) {
-      .newsletter-box { grid-template-columns: 1fr 1fr; padding: 2.5rem; gap: 2rem; }
-    }
-    .newsletter-box h2 {
-      font-family: var(--font);
-      font-size: clamp(1.4rem, 3vw, 2rem);
-      color: var(--bg-white); margin-bottom: 0.625rem;
-      font-weight: 700;
-    }
-    .newsletter-box p { color: rgba(255,255,255,0.6); margin-bottom: 0; font-size: 0.9rem; }
-    .newsletter-form {
-      display: flex; gap: 0.5rem;
-      flex-wrap: wrap;
-    }
+    @media (min-width: 1024px) { .newsletter-box { grid-template-columns: 1fr 1fr; padding: 2.5rem; gap: 2rem; } }
+    .newsletter-box h2 { font-size: clamp(1.4rem, 3vw, 2rem); color: #fff; margin-bottom: 0.625rem; font-weight: 700; }
+    .newsletter-box p { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
+    .newsletter-form { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .newsletter-form input {
-      flex: 1; min-width: 200px;
-      padding: 0.75rem 1.1rem;
-      border-radius: 100px; border: none;
-      font-family: var(--font); font-size: 0.88rem;
-      outline: none;
+      flex: 1; min-width: 200px; padding: 0.75rem 1.1rem;
+      border-radius: 100px; border: none; font-family: var(--font); font-size: 0.88rem; outline: none;
     }
     .newsletter-form input::placeholder { color: var(--text-muted); }
 
     /* ===== FOOTER ===== */
-    footer {
-      background: var(--text-dark);
-      color: var(--bg-white);
-      padding-top: 3rem;
-    }
+    footer { background: var(--text-dark); color: #fff; padding-top: 3rem; }
     .footer-grid {
       display: grid; grid-template-columns: 1fr;
       gap: 2rem; padding-bottom: 2rem;
@@ -1039,148 +826,97 @@ html_content = '''<!DOCTYPE html>
     }
     @media (min-width: 640px) { .footer-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 1024px) { .footer-grid { grid-template-columns: 1.5fr 1fr 1fr 1.2fr; gap: 2.5rem; } }
-    .footer-brand h3 {
-      font-family: var(--font);
-      font-size: 1.5rem; margin-bottom: 0.75rem;
-      font-weight: 800;
-    }
+    .footer-brand h3 { font-size: 1.5rem; margin-bottom: 0.75rem; font-weight: 800; }
     .footer-brand h3 span { color: var(--primary); }
-    .footer-brand p {
-      color: rgba(255,255,255,0.55); font-size: 0.82rem;
-      line-height: 1.7; margin-bottom: 1.25rem;
-    }
+    .footer-brand p { color: rgba(255,255,255,0.55); font-size: 0.82rem; line-height: 1.7; margin-bottom: 1.25rem; }
     .footer-socials { display: flex; gap: 0.625rem; }
     .footer-socials a {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.06);
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.07);
       display: flex; align-items: center; justify-content: center;
-      color: var(--bg-white);
-      transition: all 0.3s;
-      text-decoration: none;
+      color: #fff; transition: background 0.25s, transform 0.25s; text-decoration: none;
     }
-    .footer-socials a:hover {
-      background: var(--primary); transform: translateY(-3px);
-    }
+    .footer-socials a:hover { background: var(--primary); transform: translateY(-3px); }
     .footer-socials a svg { width: 15px; height: 15px; }
-    .footer-col h4 {
-      font-size: 0.92rem; font-weight: 600;
-      margin-bottom: 1.25rem; color: var(--bg-white);
-    }
+    .footer-col h4 { font-size: 0.92rem; font-weight: 600; margin-bottom: 1.25rem; color: #fff; }
     .footer-col ul { list-style: none; }
     .footer-col li { margin-bottom: 0.6rem; }
-    .footer-col a {
-      color: rgba(255,255,255,0.55); text-decoration: none;
-      font-size: 0.82rem; transition: color 0.3s;
-    }
+    .footer-col a { color: rgba(255,255,255,0.55); text-decoration: none; font-size: 0.82rem; transition: color 0.25s; }
     .footer-col a:hover { color: var(--primary); }
-    .footer-contact li {
-      display: flex; align-items: flex-start; gap: 0.6rem;
-      color: rgba(255,255,255,0.55); font-size: 0.82rem;
-      margin-bottom: 0.65rem;
-    }
-    .footer-contact li svg {
-      color: var(--primary); margin-top: 0.15rem;
-      width: 15px; height: 15px; flex-shrink: 0;
-    }
-    .footer-bar {
-      padding: 1.25rem 0;
-      text-align: center;
-      color: rgba(255,255,255,0.3);
-      font-size: 0.78rem;
-    }
+    .footer-contact li { display: flex; align-items: flex-start; gap: 0.6rem; color: rgba(255,255,255,0.55); font-size: 0.82rem; margin-bottom: 0.65rem; }
+    .footer-contact li svg { color: var(--primary); margin-top: 0.15rem; width: 15px; height: 15px; flex-shrink: 0; }
+    .footer-bar { padding: 1.25rem 0; text-align: center; color: rgba(255,255,255,0.3); font-size: 0.78rem; }
 
-    /* ===== MODAL MAP ===== */
+    /* ===== MAP MODAL ===== */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 9999;
-      justify-content: center; align-items: center;
-      padding: 1rem;
-      opacity: 0; transition: opacity 0.3s;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      z-index: 9999; justify-content: center; align-items: center; padding: 1rem;
     }
-    .modal-overlay.active { display: flex; opacity: 1; }
+    .modal-overlay.active { display: flex; animation: modal-in 0.3s ease forwards; }
+    @keyframes modal-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
     .modal-box {
-      background: var(--bg-white);
-      border-radius: var(--radius-xl);
+      background: var(--bg-white); border-radius: var(--radius-xl);
       width: 100%; max-width: 900px; height: 70vh;
-      display: flex; flex-direction: column;
-      overflow: hidden;
+      display: flex; flex-direction: column; overflow: hidden;
       box-shadow: var(--shadow-xl);
-      transform: scale(0.92);
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: modal-box-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .modal-overlay.active .modal-box { transform: scale(1); }
+    @keyframes modal-box-in {
+      from { transform: scale(0.93) translateY(20px); }
+      to { transform: scale(1) translateY(0); }
+    }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0.875rem 1.25rem;
-      border-bottom: 1px solid var(--border);
+      padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--border);
     }
     .modal-header h3 { font-size: 1rem; font-weight: 600; }
     .modal-close {
-      width: 36px; height: 36px;
-      border-radius: 50%; border: none;
+      width: 36px; height: 36px; border-radius: 50%; border: none;
       background: var(--bg-light); cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text-dark);
-      transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; color: var(--text-dark);
+      transition: background 0.2s, color 0.2s;
     }
-    .modal-close:hover { background: var(--primary); color: var(--bg-white); }
+    .modal-close:hover { background: var(--primary); color: #fff; }
     .modal-close svg { width: 16px; height: 16px; }
     #map { flex: 1; width: 100%; }
 
     /* ===== SCROLL TOP ===== */
     .scroll-top {
       position: fixed; bottom: 1.25rem; right: 1.25rem;
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      background: var(--primary); color: var(--bg-white);
-      border: none; cursor: pointer;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--primary); color: #fff; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 14px rgba(1,187,191,0.4);
-      opacity: 0; visibility: hidden;
-      transform: translateY(20px);
-      transition: all 0.3s; z-index: 100;
+      box-shadow: 0 4px 14px rgba(1,187,191,0.45);
+      opacity: 0; visibility: hidden; transform: translateY(16px);
+      transition: opacity 0.3s, visibility 0.3s, transform 0.3s, background 0.2s;
+      z-index: 100;
     }
     .scroll-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
     .scroll-top:hover { background: var(--primary-dark); transform: translateY(-3px); }
     .scroll-top svg { width: 18px; height: 18px; }
 
-    /* ===== LOTTIE SECTIONS ===== */
-    .lottie-wrap {
-      display: flex; justify-content: center;
-      margin-bottom: 1.5rem;
-    }
-    .lottie-wrap.small { width: 80px; height: 80px; margin: 0 auto 1rem; }
-    .lottie-wrap.medium { width: 120px; height: 120px; margin: 0 auto 1.25rem; }
-
-    /* ===== MOBILE FIRST OVERRIDES ===== */
+    /* ===== MOBILE OPTIMIZATIONS ===== */
     @media (max-width: 639px) {
       .section-padding { padding: 2.5rem 0; }
       .section-title { font-size: 1.5rem; }
       .hero { min-height: auto; padding: 64px 0 2rem; }
       .hero-title { font-size: 1.85rem; }
-      .hero-stats { gap: 1rem; }
-      .hero-stat h3 { font-size: 1.4rem; }
-      .stats-grid { gap: 1.25rem; }
-      .stat-item h3 { font-size: 1.8rem; }
       .tour-card-img, .blog-card-img { height: 170px; }
-      .destination-card { aspect-ratio: 3/4; }
-      .destination-overlay h3 { font-size: 1.15rem; }
-      .review-highlight { padding: 1.5rem; }
-      .review-highlight .quote-big { font-size: 3rem; }
-      .newsletter-box { padding: 1.75rem 1rem; }
-      .footer-grid { gap: 1.75rem; }
-      .process-step:not(:last-child)::after { display: none; }
     }
-
     @media (max-width: 374px) {
       .hero-title { font-size: 1.6rem; }
       .btn { padding: 0.7rem 1.2rem; font-size: 0.82rem; }
-      .search-bar { padding: 1rem; }
-      .section-title { font-size: 1.35rem; }
+    }
+
+    /* Reduce motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      .gallery-track { animation: none; }
     }
   </style>
 </head>
@@ -1188,9 +924,73 @@ html_content = '''<!DOCTYPE html>
 
   <!-- PRELOADER -->
   <div id="preloader">
-    <div class="preloader-lottie" id="preloader-lottie"></div>
-    <div class="preloader-text">Advan<span>to</span></div>
-    <div class="preloader-dots"><span></span><span></span><span></span></div>
+    <div class="stars-bg" id="stars-bg"></div>
+
+    <div class="preloader-airplane">
+      <div class="orbit-ring">
+        <div class="orbit-dot"></div>
+      </div>
+      <div class="plane-wrapper">
+        <svg class="plane-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Body -->
+          <path d="M50 15 C56 15 78 35 80 50 C78 65 56 85 50 85 C44 85 22 65 20 50 C22 35 44 15 50 15Z" fill="url(#bodyGrad)" opacity="0.15"/>
+          <!-- Main fuselage -->
+          <ellipse cx="50" cy="50" rx="8" ry="32" fill="url(#bodyGrad)"/>
+          <!-- Nose cone -->
+          <path d="M46 20 C46 20 50 12 54 20 Z" fill="url(#bodyGrad)"/>
+          <!-- Wings -->
+          <path d="M42 45 C30 42 10 48 8 54 C8 58 30 56 42 55 Z" fill="url(#wingGrad)"/>
+          <path d="M58 45 C70 42 90 48 92 54 C92 58 70 56 58 55 Z" fill="url(#wingGrad)"/>
+          <!-- Wing highlights -->
+          <path d="M42 48 C32 46 14 51 12 55" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-linecap="round"/>
+          <path d="M58 48 C68 46 86 51 88 55" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-linecap="round"/>
+          <!-- Tail fins -->
+          <path d="M45 72 C38 72 32 78 34 82 C36 84 45 80 45 76 Z" fill="url(#tailGrad)"/>
+          <path d="M55 72 C62 72 68 78 66 82 C64 84 55 80 55 76 Z" fill="url(#tailGrad)"/>
+          <!-- Tail vertical -->
+          <path d="M48 68 C48 68 50 58 52 68 Z" fill="url(#tailGrad)"/>
+          <!-- Windows -->
+          <circle cx="50" cy="36" r="2.5" fill="rgba(255,255,255,0.9)"/>
+          <circle cx="50" cy="43" r="2.5" fill="rgba(255,255,255,0.9)"/>
+          <circle cx="50" cy="50" r="2.5" fill="rgba(255,255,255,0.9)"/>
+          <!-- Engines -->
+          <ellipse cx="37" cy="53" rx="5" ry="3" fill="url(#engineGrad)"/>
+          <ellipse cx="63" cy="53" rx="5" ry="3" fill="url(#engineGrad)"/>
+          <!-- Engine glow -->
+          <ellipse cx="37" cy="56" rx="3" ry="1.5" fill="rgba(1,187,191,0.6)"/>
+          <ellipse cx="63" cy="56" rx="3" ry="1.5" fill="rgba(1,187,191,0.6)"/>
+          <defs>
+            <linearGradient id="bodyGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+              <stop offset="0%" stop-color="#01bbbf"/>
+              <stop offset="100%" stop-color="#0891b2"/>
+            </linearGradient>
+            <linearGradient id="wingGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+              <stop offset="0%" stop-color="#01bbbf"/>
+              <stop offset="100%" stop-color="#0e7490"/>
+            </linearGradient>
+            <linearGradient id="tailGrad" x1="0" y1="0" x2="1" y2="1" gradientUnits="objectBoundingBox">
+              <stop offset="0%" stop-color="#019fa3"/>
+              <stop offset="100%" stop-color="#0c6b74"/>
+            </linearGradient>
+            <linearGradient id="engineGrad" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+              <stop offset="0%" stop-color="#1d293d"/>
+              <stop offset="100%" stop-color="#0f172a"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="exhaust-trail">
+        <div class="trail-dot"></div>
+        <div class="trail-dot"></div>
+        <div class="trail-dot"></div>
+      </div>
+    </div>
+
+    <div class="preloader-brand">Advan<span>to</span></div>
+    <div class="preloader-tagline">Tu aventura colombiana te espera</div>
+    <div class="preloader-progress">
+      <div class="preloader-progress-bar"></div>
+    </div>
   </div>
 
   <!-- MOBILE MENU -->
@@ -1209,7 +1009,7 @@ html_content = '''<!DOCTYPE html>
   <nav id="navbar">
     <div class="nav-inner">
       <a href="#" class="nav-logo">
-        <svg viewBox="0 0 32 32" fill="none"><path d="M4 16h24M20 4l8 12-8 12M20 4v24" stroke="#01bbbf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg viewBox="0 0 32 32" fill="none" width="26" height="26"><path d="M4 16h24M20 4l8 12-8 12M20 4v24" stroke="#01bbbf" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Advan<span>to</span>
       </a>
       <ul class="nav-links">
@@ -1230,68 +1030,57 @@ html_content = '''<!DOCTYPE html>
   <!-- HERO -->
   <section class="hero" id="home">
     <div class="hero-bg-pattern"></div>
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
     <div class="hero-inner">
       <div class="hero-content">
-        <div class="hero-badge gsap-hero">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div class="hero-badge hero-entrance">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           Agencia de viajes #1 en Colombia
         </div>
-        <h1 class="hero-title gsap-hero">
+        <h1 class="hero-title hero-entrance">
           Explora Colombia y <em>Disfruta tu Viaje</em>
         </h1>
-        <p class="hero-desc gsap-hero">
+        <p class="hero-desc hero-entrance">
           Descubre destinos impresionantes y crea recuerdos inolvidables. Desde las murallas de Cartagena hasta las montañas del Eje Cafetero y la magia del Amazonas.
         </p>
-        <div class="hero-cta gsap-hero">
+        <div class="hero-cta hero-entrance">
           <a href="#destinations" class="btn btn-primary">
-            Ver Destinos <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            Ver Destinos
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
           </a>
           <a href="#about" class="btn btn-outline">
-            Conócenos <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            Conócenos
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
           </a>
         </div>
-        <div class="hero-stats gsap-hero">
-          <div class="hero-stat">
-            <h3>12+</h3>
-            <p>Años de experiencia</p>
-          </div>
-          <div class="hero-stat">
-            <h3>50+</h3>
-            <p>Destinos disponibles</p>
-          </div>
-          <div class="hero-stat">
-            <h3>15K+</h3>
-            <p>Viajeros felices</p>
-          </div>
+        <div class="hero-stats hero-entrance">
+          <div class="hero-stat"><h3>12+</h3><p>Años de experiencia</p></div>
+          <div class="hero-stat"><h3>50+</h3><p>Destinos disponibles</p></div>
+          <div class="hero-stat"><h3>15K+</h3><p>Viajeros felices</p></div>
         </div>
       </div>
-      <div class="hero-image-wrap gsap-hero-img">
-        <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=800&q=80" alt="Cartagena Colombia" class="hero-image-main">
+      <div class="hero-image-wrap hero-img-entrance">
+        <img
+          src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=800&q=80"
+          alt="Cartagena Colombia"
+          class="hero-image-main"
+          loading="eager"
+          decoding="async"
+        >
         <div class="hero-float-card card-1">
-          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Cliente">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Camila" loading="lazy">
           <div>
             <h4>Camila R.</h4>
-            <div class="stars">
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
+            <div class="stars">★★★★★</div>
             <p>"El mejor viaje de mi vida"</p>
           </div>
         </div>
         <div class="hero-float-card card-2">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Cliente">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Andrés" loading="lazy">
           <div>
             <h4>Andrés F.</h4>
-            <div class="stars">
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
+            <div class="stars">★★★★★</div>
             <p>"San Andrés fue increíble"</p>
           </div>
         </div>
@@ -1304,7 +1093,7 @@ html_content = '''<!DOCTYPE html>
     <form class="search-bar" id="travel-form">
       <div class="search-field">
         <label>Destino</label>
-        <div class="input-wrap map-trigger" id="location-trigger">
+        <div class="input-wrap" id="location-trigger">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
           <input type="text" id="location-input" placeholder="Seleccionar en el mapa" readonly>
         </div>
@@ -1326,47 +1115,27 @@ html_content = '''<!DOCTYPE html>
   <section class="section-padding" id="about">
     <div class="container">
       <div class="about-grid">
-        <div class="about-images gsap-reveal">
-          <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Eje Cafetero Colombia" class="about-img-main">
-          <img src="https://images.unsplash.com/photo-1596392060635-9d6019884377?w=400&q=80" alt="Cultura Colombiana" class="about-img-secondary">
-          <div class="about-experience">
-            <h3>12+</h3>
-            <p>Años de<br>experiencia</p>
-          </div>
+        <div class="about-images reveal">
+          <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Eje Cafetero Colombia" class="about-img-main" loading="lazy" decoding="async">
+          <img src="https://images.unsplash.com/photo-1596392060635-9d6019884377?w=400&q=80" alt="Cultura Colombiana" class="about-img-secondary" loading="lazy" decoding="async">
+          <div class="about-experience"><h3>12+</h3><p>Años de<br>experiencia</p></div>
         </div>
-        <div class="gsap-reveal">
+        <div class="reveal">
           <span class="section-label">Sobre Nosotros</span>
           <h2 class="section-title">Es Hora de una Nueva Aventura. No Esperes Más.</h2>
-          <p class="section-desc" style="max-width:100%">
-            En Advanto, creemos que cada viaje es una historia esperando ser contada. Colombia es el país de la belleza, y ya sea que busques las playas cristalinas de San Andrés, la cultura vibrante de Medellín o la tranquilidad de nuestros parques nacionales, estamos aquí para llevarte.
-          </p>
+          <p class="section-desc" style="max-width:100%">En Advanto, creemos que cada viaje es una historia esperando ser contada. Colombia es el país de la belleza, y ya sea que busques las playas cristalinas de San Andrés, la cultura vibrante de Medellín o la tranquilidad de nuestros parques nacionales, estamos aquí para llevarte.</p>
           <div class="about-features">
             <div class="about-feature">
-              <div class="about-feature-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              </div>
-              <div>
-                <h4>Viajes 100% Seguros</h4>
-                <p>Contamos con todos los seguros y respaldos para que solo disfrutes.</p>
-              </div>
+              <div class="about-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+              <div><h4>Viajes 100% Seguros</h4><p>Contamos con todos los seguros y respaldos para que solo disfrutes.</p></div>
             </div>
             <div class="about-feature">
-              <div class="about-feature-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-              </div>
-              <div>
-                <h4>Mejores Precios Garantizados</h4>
-                <p>Negociamos directamente con hoteles y aerolíneas por las mejores tarifas.</p>
-              </div>
+              <div class="about-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <div><h4>Mejores Precios Garantizados</h4><p>Negociamos directamente con hoteles y aerolíneas por las mejores tarifas.</p></div>
             </div>
             <div class="about-feature">
-              <div class="about-feature-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8Z"/><polyline points="15,9 18,9 18,11"/><path d="M6.5 5C6.5 3 8 2 9.5 2h5C16 2 17.5 3 17.5 5"/></svg>
-              </div>
-              <div>
-                <h4>Atención 24/7</h4>
-                <p>Nuestro equipo está disponible antes, durante y después de tu viaje.</p>
-              </div>
+              <div class="about-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.5C2 7 4 5 6.5 5H18c2.2 0 4 1.8 4 4v8Z"/><polyline points="15,9 18,9 18,11"/></svg></div>
+              <div><h4>Atención 24/7</h4><p>Nuestro equipo está disponible antes, durante y después de tu viaje.</p></div>
             </div>
           </div>
         </div>
@@ -1377,23 +1146,11 @@ html_content = '''<!DOCTYPE html>
   <!-- STATS -->
   <section class="stats-section section-padding">
     <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item gsap-counter">
-          <h3 data-count="15000">0</h3>
-          <p>Viajeros Satisfechos</p>
-        </div>
-        <div class="stat-item gsap-counter">
-          <h3 data-count="50">0</h3>
-          <p>Destinos Disponibles</p>
-        </div>
-        <div class="stat-item gsap-counter">
-          <h3 data-count="12">0</h3>
-          <p>Años de Experiencia</p>
-        </div>
-        <div class="stat-item gsap-counter">
-          <h3 data-count="98">0</h3>
-          <p>% Recomendación</p>
-        </div>
+      <div class="stats-grid reveal-stagger">
+        <div class="stat-item"><h3 class="counter" data-count="15000">0</h3><p>Viajeros Satisfechos</p></div>
+        <div class="stat-item"><h3 class="counter" data-count="50">0</h3><p>Destinos Disponibles</p></div>
+        <div class="stat-item"><h3 class="counter" data-count="12">0</h3><p>Años de Experiencia</p></div>
+        <div class="stat-item"><h3 class="counter" data-count="98">0</h3><p>% Recomendación</p></div>
       </div>
     </div>
   </section>
@@ -1401,69 +1158,71 @@ html_content = '''<!DOCTYPE html>
   <!-- TOURS -->
   <section class="section-padding" id="tours">
     <div class="container">
-      <div class="text-center gsap-reveal">
+      <div class="text-center reveal">
         <span class="section-label">Tipo de Tour</span>
         <h2 class="section-title">Elige tu Aventura Colombiana</h2>
         <p class="section-desc">Tenemos el plan perfecto para cada tipo de viajero. Desde playas paradisíacas hasta selvas amazónicas.</p>
       </div>
-      <div class="tours-grid">
-        <div class="tour-card gsap-reveal">
+      <div class="tours-grid reveal-stagger">
+        <div class="tour-card">
           <div class="tour-card-img">
-            <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés Colombia">
+            <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés Colombia" loading="lazy" decoding="async">
             <span class="tour-card-badge">Más Popular</span>
           </div>
           <div class="tour-card-body">
             <h3>Playas y Caribe</h3>
             <p>Disfruta de aguas cristalinas, arena blanca y el sol caribeño en San Andrés, Cartagena y Santa Marta.</p>
             <div class="tour-card-meta">
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 8 destinos</span>
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 3-7 días</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 8 destinos</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 3–7 días</span>
             </div>
           </div>
         </div>
-        <div class="tour-card gsap-reveal">
+        <div class="tour-card">
           <div class="tour-card-img">
-            <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Valle de Cocora">
+            <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Valle de Cocora" loading="lazy" decoding="async">
           </div>
           <div class="tour-card-body">
             <h3>Eje Cafetero y Naturaleza</h3>
             <p>Recorre el paisaje cultural cafetero, visita Salento, el Valle de Cocora y el mejor café del mundo.</p>
             <div class="tour-card-meta">
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 5 destinos</span>
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2-5 días</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 5 destinos</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 2–5 días</span>
             </div>
           </div>
         </div>
-        <div class="tour-card gsap-reveal">
+        <div class="tour-card">
           <div class="tour-card-img">
-            <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas Colombia">
+            <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas Colombia" loading="lazy" decoding="async">
             <span class="tour-card-badge">Aventura</span>
           </div>
           <div class="tour-card-body">
             <h3>Aventura en la Selva</h3>
             <p>Sumérgete en la Amazonía colombiana. Avistamiento de fauna, caminatas ecológicas y comunidades indígenas.</p>
             <div class="tour-card-meta">
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 3 destinos</span>
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 4-6 días</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 3 destinos</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 4–6 días</span>
             </div>
           </div>
         </div>
-        <div class="tour-card gsap-reveal">
+        <div class="tour-card">
           <div class="tour-card-img">
-            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura Colombiana">
+            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura Colombiana" loading="lazy" decoding="async">
           </div>
           <div class="tour-card-body">
             <h3>Tours Históricos y Culturales</h3>
             <p>Explora el patrimonio colonial, museos de oro, pueblos patrimonio y nuestra vibrante escena cultural.</p>
             <div class="tour-card-meta">
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 12 destinos</span>
-              <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 1-4 días</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> 12 destinos</span>
+              <span><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 1–4 días</span>
             </div>
           </div>
         </div>
       </div>
       <div class="text-center" style="margin-top:2rem">
-        <a href="#destinations" class="btn btn-outline gsap-reveal">Ver Todos los Tours <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+        <a href="#destinations" class="btn btn-outline reveal">Ver Todos los Tours
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
       </div>
     </div>
   </section>
@@ -1471,14 +1230,14 @@ html_content = '''<!DOCTYPE html>
   <!-- DESTINATIONS -->
   <section class="section-padding" id="destinations" style="background:var(--bg-light)">
     <div class="container">
-      <div class="text-center gsap-reveal">
+      <div class="text-center reveal">
         <span class="section-label">Mejores Destinos</span>
         <h2 class="section-title">Nuestros Destinos Top</h2>
-        <p class="section-desc">Los lugares más solicitados por nuestros viajeros, con los mejores precios y experiencias garantizadas.</p>
+        <p class="section-desc">Los lugares más solicitados, con los mejores precios y experiencias garantizadas.</p>
       </div>
-      <div class="destinations-grid">
-        <div class="destination-card gsap-reveal">
-          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Cartagena de Indias">
+      <div class="destinations-grid reveal-stagger">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Cartagena de Indias" loading="lazy" decoding="async">
           <div class="destination-overlay">
             <span class="destination-tag">Caribe</span>
             <h3>Cartagena de Indias</h3>
@@ -1489,8 +1248,8 @@ html_content = '''<!DOCTYPE html>
             </div>
           </div>
         </div>
-        <div class="destination-card gsap-reveal">
-          <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80" alt="Medellín Colombia">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80" alt="Medellín" loading="lazy" decoding="async">
           <div class="destination-overlay">
             <span class="destination-tag">Ciudad</span>
             <h3>Medellín y Antioquia</h3>
@@ -1501,20 +1260,20 @@ html_content = '''<!DOCTYPE html>
             </div>
           </div>
         </div>
-        <div class="destination-card gsap-reveal">
-          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Santa Marta Colombia">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Santa Marta" loading="lazy" decoding="async">
           <div class="destination-overlay">
             <span class="destination-tag">Naturaleza</span>
             <h3>Santa Marta</h3>
-            <p>Naturaleza viva, cultura indígena y el mágico Parque Nacional Natural Tayrona.</p>
+            <p>Naturaleza viva, cultura indígena y el mágico Parque Natural Tayrona.</p>
             <div class="destination-price">
               <h4>$1.100.000 <span>COP / 4 días</span></h4>
               <div class="destination-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></div>
             </div>
           </div>
         </div>
-        <div class="destination-card gsap-reveal">
-          <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés Isla">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés" loading="lazy" decoding="async">
           <div class="destination-overlay">
             <span class="destination-tag">Isla</span>
             <h3>San Andrés</h3>
@@ -1525,8 +1284,8 @@ html_content = '''<!DOCTYPE html>
             </div>
           </div>
         </div>
-        <div class="destination-card gsap-reveal">
-          <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Eje Cafetero Salento">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Eje Cafetero" loading="lazy" decoding="async">
           <div class="destination-overlay">
             <span class="destination-tag">Montaña</span>
             <h3>Eje Cafetero</h3>
@@ -1537,8 +1296,8 @@ html_content = '''<!DOCTYPE html>
             </div>
           </div>
         </div>
-        <div class="destination-card gsap-reveal">
-          <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas Leticia">
+        <div class="destination-card">
+          <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas" loading="lazy" decoding="async">
           <div class="destination-overlay">
             <span class="destination-tag">Selva</span>
             <h3>Amazonas (Leticia)</h3>
@@ -1556,38 +1315,38 @@ html_content = '''<!DOCTYPE html>
   <!-- WHY US -->
   <section class="section-padding">
     <div class="container">
-      <div class="text-center gsap-reveal">
+      <div class="text-center reveal">
         <span class="section-label">¿Por qué elegirnos?</span>
         <h2 class="section-title">La Experiencia Advanto</h2>
         <p class="section-desc">No somos solo una agencia de viajes. Somos tus compañeros de aventura en cada paso.</p>
       </div>
-      <div class="why-grid">
-        <div class="why-card gsap-reveal">
+      <div class="why-grid reveal-stagger">
+        <div class="why-card">
           <div class="why-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg></div>
           <h3>Reserva Flexible</h3>
           <p>Cambia las fechas de tu viaje sin costo adicional hasta 15 días antes de la salida.</p>
         </div>
-        <div class="why-card gsap-reveal">
+        <div class="why-card">
           <div class="why-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="m9 12 2 2 4-4"/></svg></div>
           <h3>Hoteles Premium</h3>
           <p>Aliados con las mejores cadenas hoteleras. Desde boutique hotels hasta resorts todo incluido.</p>
         </div>
-        <div class="why-card gsap-reveal">
+        <div class="why-card">
           <div class="why-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20"/><path d="M13 2l9 10-9 10"/><path d="M13 2v20"/></svg></div>
           <h3>Vuelos Incluidos</h3>
           <p>Nuestros paquetes incluyen tiquetes aéreos con las principales aerolíneas nacionales.</p>
         </div>
-        <div class="why-card gsap-reveal">
+        <div class="why-card">
           <div class="why-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></div>
           <h3>Guías Certificados</h3>
           <p>Todos nuestros tours incluyen guías locales certificados que conocen cada rincón.</p>
         </div>
-        <div class="why-card gsap-reveal">
+        <div class="why-card">
           <div class="why-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></div>
           <h3>Pago a Cuotas</h3>
           <p>Financia tu viaje hasta en 12 cuotas sin intereses con nuestras entidades bancarias aliadas.</p>
         </div>
-        <div class="why-card gsap-reveal">
+        <div class="why-card">
           <div class="why-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></div>
           <h3>Garantía de Devolución</h3>
           <p>Si no quedas satisfecho, te devolvemos el 100% de tu dinero en las primeras 24 horas.</p>
@@ -1599,28 +1358,28 @@ html_content = '''<!DOCTYPE html>
   <!-- PROCESS -->
   <section class="section-padding" style="background:var(--bg-light)">
     <div class="container">
-      <div class="text-center gsap-reveal">
+      <div class="text-center reveal">
         <span class="section-label">Cómo funciona</span>
         <h2 class="section-title">Reserva tu Viaje en 4 Pasos</h2>
         <p class="section-desc">Hemos simplificado el proceso para que planear tu próxima aventura sea muy fácil.</p>
       </div>
-      <div class="process-grid">
-        <div class="process-step gsap-reveal">
+      <div class="process-grid reveal-stagger">
+        <div class="process-step">
           <div class="process-num">01</div>
           <h3>Elige tu Destino</h3>
           <p>Explora nuestro catálogo de más de 50 destinos en Colombia y selecciona el que más te inspire.</p>
         </div>
-        <div class="process-step gsap-reveal">
+        <div class="process-step">
           <div class="process-num">02</div>
           <h3>Personaliza tu Plan</h3>
           <p>Selecciona fechas, tipo de alojamiento, actividades adicionales y traslados.</p>
         </div>
-        <div class="process-step gsap-reveal">
+        <div class="process-step">
           <div class="process-num">03</div>
           <h3>Reserva Segura</h3>
           <p>Paga de forma segura con múltiples métodos y recibe tu confirmación al instante.</p>
         </div>
-        <div class="process-step gsap-reveal">
+        <div class="process-step">
           <div class="process-num">04</div>
           <h3>Disfruta el Viaje</h3>
           <p>Nosotros nos encargamos de todo. Solo llega al aeropuerto y comienza tu aventura.</p>
@@ -1632,22 +1391,23 @@ html_content = '''<!DOCTYPE html>
   <!-- GALLERY -->
   <section class="gallery-section">
     <div class="gallery-track">
-      <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Cartagena">
-      <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés">
-      <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Valle de Cocora">
-      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Tayrona">
-      <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Café Colombiano">
-      <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura">
-      <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas">
-      <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80" alt="Medellín">
-      <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Cartagena">
-      <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés">
-      <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Valle de Cocora">
-      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Tayrona">
-      <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Café">
-      <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura">
-      <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas">
-      <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80" alt="Medellín">
+      <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Cartagena" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Valle de Cocora" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Tayrona" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Café Colombiano" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80" alt="Medellín" loading="lazy" decoding="async">
+      <!-- Duplicates for infinite loop -->
+      <img src="https://images.unsplash.com/photo-1587595431973-160d0d94add1?w=600&q=80" alt="Cartagena" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1559628233-100c798642d4?w=600&q=80" alt="San Andrés" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=600&q=80" alt="Valle de Cocora" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Tayrona" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1518105779142-d975f22f1b0a?w=600&q=80" alt="Café" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Cultura" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas" loading="lazy" decoding="async">
+      <img src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=600&q=80" alt="Medellín" loading="lazy" decoding="async">
     </div>
   </section>
 
@@ -1655,99 +1415,55 @@ html_content = '''<!DOCTYPE html>
   <section class="section-padding reviews-section" id="reviews">
     <div class="container">
       <div class="reviews-grid">
-        <div class="gsap-reveal">
+        <div class="reveal">
           <span class="section-label">Testimonios</span>
           <h2 class="section-title" style="max-width:400px">Lo que dicen nuestros viajeros</h2>
-          <p class="section-desc" style="max-width:400px; margin-bottom:1.5rem">
-            Miles de colombianos han confiado en nosotros para vivir sus mejores experiencias.
-          </p>
+          <p class="section-desc" style="max-width:400px; margin-bottom:1.5rem">Miles de colombianos han confiado en nosotros para vivir sus mejores experiencias.</p>
           <div class="review-highlight">
             <span class="quote-big">"</span>
             <p>Advanto superó todas mis expectativas. El tour por el Eje Cafetero fue espectacular. Toda la logística, el hospedaje en las fincas y el tour por Salento fue organizado de manera impecable. ¡Volveré a viajar con ellos sin dudarlo!</p>
             <div class="review-author">
-              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Camila">
+              <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80" alt="Camila" loading="lazy">
               <div>
                 <h4>Camila Rodríguez</h4>
                 <p>Bogotá, Colombia</p>
-                <div class="stars">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                </div>
+                <div class="stars">★★★★★</div>
               </div>
             </div>
           </div>
         </div>
-        <div class="review-cards">
-          <div class="review-card gsap-reveal">
+        <div class="review-cards reveal-stagger">
+          <div class="review-card">
             <div class="review-card-header">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Andrés">
-              <div class="stars">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              </div>
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt="Andrés" loading="lazy">
+              <div class="stars">★★★★★</div>
             </div>
             <p>"Siempre quise ir a San Andrés pero me daba pereza planear. El equipo de Advanto me armó un paquete todo incluido y yo solo me dediqué a disfrutar del mar de los siete colores."</p>
-            <div class="review-card-footer">
-              <h4>Andrés Felipe</h4>
-              <span>Cali, Colombia</span>
-            </div>
+            <div class="review-card-footer"><h4>Andrés Felipe</h4><span>Cali, Colombia</span></div>
           </div>
-          <div class="review-card gsap-reveal">
+          <div class="review-card">
             <div class="review-card-header">
-              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80" alt="Laura">
-              <div class="stars">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              </div>
+              <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80" alt="Laura" loading="lazy">
+              <div class="stars">★★★★★</div>
             </div>
             <p>"La atención al cliente es increíble. Tuve un problema con mi vuelo y ellos lo resolvieron en minutos. Cartagena quedó en mi corazón para siempre."</p>
-            <div class="review-card-footer">
-              <h4>Laura Gómez</h4>
-              <span>Medellín, Colombia</span>
-            </div>
+            <div class="review-card-footer"><h4>Laura Gómez</h4><span>Medellín, Colombia</span></div>
           </div>
-          <div class="review-card gsap-reveal">
+          <div class="review-card">
             <div class="review-card-header">
-              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="Carlos">
-              <div class="stars">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              </div>
+              <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=80" alt="Carlos" loading="lazy">
+              <div class="stars">★★★★★</div>
             </div>
             <p>"Llevé a mi familia al Amazonas y fue una experiencia educativa y divertida. Los niños quedaron fascinados con los delfines rosados. Totalmente recomendado."</p>
-            <div class="review-card-footer">
-              <h4>Carlos Mendoza</h4>
-              <span>Barranquilla, Colombia</span>
-            </div>
+            <div class="review-card-footer"><h4>Carlos Mendoza</h4><span>Barranquilla, Colombia</span></div>
           </div>
-          <div class="review-card gsap-reveal">
+          <div class="review-card">
             <div class="review-card-header">
-              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80" alt="Valentina">
-              <div class="stars">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              </div>
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80" alt="Valentina" loading="lazy">
+              <div class="stars">★★★★★</div>
             </div>
             <p>"El mejor precio que encontré en el mercado. Comparé con otras agencias y Advanto tenía la mejor relación calidad-precio. Santa Marta fue un sueño."</p>
-            <div class="review-card-footer">
-              <h4>Valentina Ruiz</h4>
-              <span>Pereira, Colombia</span>
-            </div>
+            <div class="review-card-footer"><h4>Valentina Ruiz</h4><span>Pereira, Colombia</span></div>
           </div>
         </div>
       </div>
@@ -1757,15 +1473,15 @@ html_content = '''<!DOCTYPE html>
   <!-- BLOG -->
   <section class="section-padding" id="blog">
     <div class="container">
-      <div class="text-center gsap-reveal">
+      <div class="text-center reveal">
         <span class="section-label">Noticias y Blogs</span>
         <h2 class="section-title">Conoce más de Colombia</h2>
         <p class="section-desc">Tips, guías y recomendaciones para que tu próximo viaje sea perfecto.</p>
       </div>
-      <div class="blog-grid">
-        <article class="blog-card gsap-reveal">
+      <div class="blog-grid reveal-stagger">
+        <article class="blog-card">
           <div class="blog-card-img">
-            <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas Colombia">
+            <img src="https://images.unsplash.com/photo-1516934024742-b461fba47600?w=600&q=80" alt="Amazonas Colombia" loading="lazy" decoding="async">
           </div>
           <div class="blog-card-body">
             <div class="blog-card-meta">
@@ -1776,9 +1492,9 @@ html_content = '''<!DOCTYPE html>
             <a href="#" class="read-more">Leer Más <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
           </div>
         </article>
-        <article class="blog-card gsap-reveal">
+        <article class="blog-card">
           <div class="blog-card-img">
-            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Parque Tayrona">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Parque Tayrona" loading="lazy" decoding="async">
           </div>
           <div class="blog-card-body">
             <div class="blog-card-meta">
@@ -1789,9 +1505,9 @@ html_content = '''<!DOCTYPE html>
             <a href="#" class="read-more">Leer Más <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
           </div>
         </article>
-        <article class="blog-card gsap-reveal">
+        <article class="blog-card">
           <div class="blog-card-img">
-            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Pueblos Patrimonio">
+            <img src="https://images.unsplash.com/photo-1526392060635-9d6019884377?w=600&q=80" alt="Pueblos Patrimonio" loading="lazy" decoding="async">
           </div>
           <div class="blog-card-body">
             <div class="blog-card-meta">
@@ -1810,56 +1526,31 @@ html_content = '''<!DOCTYPE html>
   <section class="section-padding" style="background:var(--bg-light)">
     <div class="container">
       <div class="faq-grid">
-        <div class="gsap-reveal">
+        <div class="reveal">
           <span class="section-label">Preguntas Frecuentes</span>
           <h2 class="section-title">Resolvemos tus dudas</h2>
           <p class="section-desc">Si tienes alguna otra pregunta, contáctanos por WhatsApp o correo electrónico.</p>
         </div>
-        <div class="faq-list gsap-reveal">
+        <div class="faq-list reveal">
           <div class="faq-item active">
-            <button class="faq-question">
-              ¿Qué incluyen los paquetes de viaje?
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <div class="faq-answer">
-              <p>Nuestros paquetes incluyen tiquetes aéreos (si aplica), alojamiento en hoteles seleccionados, desayunos, traslados aeropuerto-hotel-aeropuerto, tours guiados y asistencia médica durante todo el viaje. Puedes personalizarlos agregando actividades adicionales.</p>
-            </div>
+            <button class="faq-question">¿Qué incluyen los paquetes de viaje?<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <div class="faq-answer"><p>Nuestros paquetes incluyen tiquetes aéreos (si aplica), alojamiento en hoteles seleccionados, desayunos, traslados aeropuerto-hotel-aeropuerto, tours guiados y asistencia médica durante todo el viaje. Puedes personalizarlos agregando actividades adicionales.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-question">
-              ¿Puedo pagar a cuotas?
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <div class="faq-answer">
-              <p>¡Sí! Trabajamos con múltiples entidades bancarias para ofrecerte financiación hasta en 12 cuotas sin intereses. También aceptamos pagos con tarjeta de crédito, débito, transferencia bancaria y efectivo en nuestras oficinas.</p>
-            </div>
+            <button class="faq-question">¿Puedo pagar a cuotas?<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <div class="faq-answer"><p>¡Sí! Trabajamos con múltiples entidades bancarias para ofrecerte financiación hasta en 12 cuotas sin intereses. También aceptamos pagos con tarjeta de crédito, débito, transferencia bancaria y efectivo en nuestras oficinas.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-question">
-              ¿Qué pasa si necesito cancelar mi viaje?
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <div class="faq-answer">
-              <p>Ofrecemos políticas de cancelación flexibles. Si cancelas con más de 15 días de anticipación, recibes el 90% de reembolso. Entre 7 y 14 días, el 70%. También puedes reprogramar tu viaje sin costo adicional.</p>
-            </div>
+            <button class="faq-question">¿Qué pasa si necesito cancelar mi viaje?<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <div class="faq-answer"><p>Ofrecemos políticas de cancelación flexibles. Si cancelas con más de 15 días de anticipación, recibes el 90% de reembolso. Entre 7 y 14 días, el 70%. También puedes reprogramar tu viaje sin costo adicional.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-question">
-              ¿Los tours incluyen seguro de viaje?
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <div class="faq-answer">
-              <p>Todos nuestros paquetes incluyen seguro de asistencia médica básica. También ofrecemos la opción de upgrade a seguro premium que cubre cancelación, pérdida de equipaje y actividades de aventura.</p>
-            </div>
+            <button class="faq-question">¿Los tours incluyen seguro de viaje?<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <div class="faq-answer"><p>Todos nuestros paquetes incluyen seguro de asistencia médica básica. También ofrecemos la opción de upgrade a seguro premium que cubre cancelación, pérdida de equipaje y actividades de aventura.</p></div>
           </div>
           <div class="faq-item">
-            <button class="faq-question">
-              ¿Cómo puedo contactar a un asesor?
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-            </button>
-            <div class="faq-answer">
-              <p>Puedes escribirnos por WhatsApp, llamarnos a nuestra línea de atención, enviarnos un correo o visitar cualquiera de nuestras 8 oficinas en Medellín y el oriente antioqueño. ¡Estamos para servirte!</p>
-            </div>
+            <button class="faq-question">¿Cómo puedo contactar a un asesor?<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+            <div class="faq-answer"><p>Puedes escribirnos por WhatsApp, llamarnos a nuestra línea de atención, enviarnos un correo o visitar cualquiera de nuestras 8 oficinas en Medellín y el oriente antioqueño. ¡Estamos para servirte!</p></div>
           </div>
         </div>
       </div>
@@ -1869,8 +1560,8 @@ html_content = '''<!DOCTYPE html>
   <!-- PARTNERS -->
   <section class="section-padding" style="padding:2.5rem 0">
     <div class="container">
-      <p class="text-center" style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:1.25rem">Confían en nosotros</p>
-      <div class="partners-track gsap-reveal">
+      <p class="text-center" style="font-size:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:600;margin-bottom:1.25rem">Confían en nosotros</p>
+      <div class="partners-track reveal-stagger">
         <span class="partner-item">Avianca</span>
         <span class="partner-item">LATAM</span>
         <span class="partner-item">Wingo</span>
@@ -1886,11 +1577,13 @@ html_content = '''<!DOCTYPE html>
   <!-- CTA -->
   <section class="section-padding cta-section">
     <div class="container">
-      <div class="cta-inner gsap-reveal">
+      <div class="cta-inner reveal">
         <h2>¿Listo para tu próxima aventura?</h2>
         <p>No dejes para mañana el viaje que puedes disfrutar hoy. Contáctanos y recibe una cotización personalizada en minutos.</p>
         <div class="cta-buttons">
-          <a href="#contact" class="btn btn-primary">Cotizar mi Viaje <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></a>
+          <a href="#contact" class="btn btn-primary">Cotizar mi Viaje
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          </a>
           <a href="#destinations" class="btn btn-outline">Explorar Destinos</a>
         </div>
       </div>
@@ -1900,12 +1593,12 @@ html_content = '''<!DOCTYPE html>
   <!-- NEWSLETTER -->
   <section class="section-padding" id="contact">
     <div class="container">
-      <div class="newsletter-box gsap-reveal">
+      <div class="newsletter-box reveal">
         <div>
           <h2>Suscríbete a nuestras ofertas exclusivas</h2>
           <p>Recibe las mejores promociones, nuevos destinos y tips de viaje directamente en tu correo. Sin spam, solo buenas vibras.</p>
         </div>
-        <form class="newsletter-form" onsubmit="event.preventDefault(); alert('¡Gracias por suscribirte! Pronto recibirás nuestras mejores ofertas.');">
+        <form class="newsletter-form" onsubmit="event.preventDefault(); this.innerHTML='<p style=\'color:#fff;font-weight:600;padding:1rem 0\'>✓ ¡Gracias! Pronto recibirás nuestras mejores ofertas.</p>'">
           <input type="email" placeholder="Tu correo electrónico" required>
           <button type="submit" class="btn btn-primary">Suscribirme</button>
         </form>
@@ -1923,8 +1616,8 @@ html_content = '''<!DOCTYPE html>
           <div class="footer-socials">
             <a href="#" aria-label="Facebook"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
             <a href="#" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
-            <a href="#" aria-label="Twitter"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
-            <a href="#" aria-label="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg></a>
+            <a href="#" aria-label="Twitter/X"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
+            <a href="#" aria-label="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></a>
             <a href="#" aria-label="YouTube"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/><path d="m10 15 5-3-5-3z"/></svg></a>
           </div>
         </div>
@@ -1952,16 +1645,13 @@ html_content = '''<!DOCTYPE html>
           <h4>Contacto</h4>
           <ul>
             <li><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> Medellín, Antioquia, Colombia</li>
-            <li><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +57 (604) 123 4567</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> +57 (604) 123 4567</li>
             <li><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> hola@advanto.co</li>
-            <li><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg> +57 300 000 0000</li>
-            <li><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Lun - Vie: 8am - 6pm</li>
+            <li><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Lun – Vie: 8am – 6pm</li>
           </ul>
         </div>
       </div>
-      <div class="footer-bar">
-        <p>Copyright © 2026 Advanto Colombia. Todos los derechos reservados.</p>
-      </div>
+      <div class="footer-bar">Copyright © 2026 Advanto Colombia. Todos los derechos reservados.</div>
     </div>
   </footer>
 
@@ -1970,7 +1660,9 @@ html_content = '''<!DOCTYPE html>
     <div class="modal-box">
       <div class="modal-header">
         <h3>Selecciona tu Destino en Colombia</h3>
-        <button class="modal-close" id="close-map"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        <button class="modal-close" id="close-map">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
       </div>
       <div id="map"></div>
     </div>
@@ -1987,206 +1679,133 @@ html_content = '''<!DOCTYPE html>
   <script src="https://npmcdn.com/flatpickr/dist/l10n/es.js"></script>
 
   <script>
-    // ===== LOTTIE PRELOADER =====
-    const preloaderLottie = lottie.loadAnimation({
-      container: document.getElementById('preloader-lottie'),
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      path: 'https://lottie.host/4b880c56-785c-4c6c-8c4c-8c4c8c4c8c4c/placeholder.json' // fallback - using inline SVG animation instead
-    });
+    // ===== GENERATE STARS =====
+    (function() {
+      const bg = document.getElementById('stars-bg');
+      for (let i = 0; i < 60; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        s.style.cssText = `
+          left:${Math.random()*100}%;
+          top:${Math.random()*100}%;
+          --d:${2 + Math.random()*3}s;
+          --delay:${Math.random()*3}s;
+          width:${Math.random() > 0.7 ? 3 : 2}px;
+          height:${Math.random() > 0.7 ? 3 : 2}px;
+          opacity:${0.3 + Math.random()*0.5};
+        `;
+        bg.appendChild(s);
+      }
+    })();
 
-    // Since external Lottie URLs can be unreliable, let's use a fallback with inline SVG
-    document.getElementById('preloader-lottie').innerHTML = `
-      <svg viewBox="0 0 200 200" width="200" height="200" style="overflow:visible">
-        <defs>
-          <linearGradient id="planeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#01bbbf"/>
-            <stop offset="100%" style="stop-color:#019fa3"/>
-          </linearGradient>
-        </defs>
-        <g transform="translate(100,100)">
-          <g>
-            <animateTransform attributeName="transform" type="translate" values="0,0; 0,-8; 0,0" dur="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/>
-            <path d="M-30,-5 L-15,-5 L-5,-20 L5,-20 L10,-5 L30,-5 L25,0 L10,0 L5,15 L-5,15 L-10,0 L-25,0 Z" fill="url(#planeGrad)" stroke="#1d293d" stroke-width="1.5" stroke-linejoin="round">
-              <animateTransform attributeName="transform" type="rotate" values="-3; 3; -3" dur="3s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/>
-            </path>
-            <circle cx="0" cy="-8" r="3" fill="#1d293d"/>
-            <path d="M-20,5 L20,5" stroke="#1d293d" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M-35,8 L35,8" stroke="var(--border)" stroke-width="2" stroke-linecap="round" opacity="0.5"/>
-            <line x1="-40" y1="8" x2="-10" y2="8" stroke="#01bbbf" stroke-width="2" stroke-linecap="round">
-              <animate attributeName="x1" values="-40;40" dur="1.5s" repeatCount="indefinite"/>
-              <animate attributeName="x2" values="-10;70" dur="1.5s" repeatCount="indefinite"/>
-            </line>
-          </g>
-        </g>
-      </svg>
-    `;
-
-    // ===== PRELOADER HIDE =====
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('preloader').classList.add('hidden');
-        document.body.classList.remove('loading');
-        initGsapAnimations();
-      }, 2500);
-    });
-
-    // ===== GSAP ANIMATIONS =====
-    function initGsapAnimations() {
-      gsap.registerPlugin(ScrollTrigger);
-
-      // Hero entrance
-      gsap.from('.gsap-hero', {
-        y: 35, opacity: 0, duration: 0.85,
-        stagger: 0.12, ease: 'power3.out', delay: 0.15
-      });
-
-      gsap.from('.gsap-hero-img', {
-        x: 50, opacity: 0, duration: 1.1,
-        ease: 'power3.out', delay: 0.35
-      });
-
-      // Scroll reveal
-      gsap.utils.toArray('.gsap-reveal').forEach((el, i) => {
-        gsap.from(el, {
-          scrollTrigger: {
-            trigger: el,
-            start: 'top 90%',
-            toggleActions: 'play none none none'
-          },
-          y: 30, opacity: 0, duration: 0.65,
-          ease: 'power3.out',
-          delay: (i % 4) * 0.06
-        });
-      });
-
-      // Counter animation
-      gsap.utils.toArray('.gsap-counter h3').forEach(counter => {
-        const target = parseInt(counter.dataset.count);
-        ScrollTrigger.create({
-          trigger: counter,
-          start: 'top 85%',
-          once: true,
-          onEnter: () => {
-            gsap.to(counter, {
-              innerText: target,
-              duration: 2.2,
-              snap: { innerText: 1 },
-              ease: 'power2.out',
-              onUpdate: function() {
-                counter.innerText = Math.floor(this.targets()[0].innerText).toLocaleString();
-              }
-            });
-          }
-        });
-      });
-
-      // Parallax hero image
-      gsap.to('.hero-image-main', {
-        scrollTrigger: {
-          trigger: '.hero',
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1.5
-        },
-        y: 50, ease: 'none'
-      });
-
-      // Stats entrance
-      gsap.from('.stat-item', {
-        scrollTrigger: {
-          trigger: '.stats-section',
-          start: 'top 80%'
-        },
-        y: 25, opacity: 0, duration: 0.7,
-        stagger: 0.1, ease: 'power3.out'
-      });
-
-      // Process steps with bounce
-      gsap.from('.process-step', {
-        scrollTrigger: {
-          trigger: '.process-grid',
-          start: 'top 80%'
-        },
-        y: 35, opacity: 0, scale: 0.92,
-        duration: 0.7, stagger: 0.12,
-        ease: 'back.out(1.3)'
-      });
-
-      // Destination cards stagger
-      gsap.from('.destination-card', {
-        scrollTrigger: {
-          trigger: '.destinations-grid',
-          start: 'top 85%'
-        },
-        y: 40, opacity: 0, duration: 0.7,
-        stagger: 0.1, ease: 'power3.out'
-      });
-
-      // Tour cards
-      gsap.from('.tour-card', {
-        scrollTrigger: {
-          trigger: '.tours-grid',
-          start: 'top 85%'
-        },
-        y: 35, opacity: 0, duration: 0.65,
-        stagger: 0.08, ease: 'power3.out'
-      });
+    // ===== PRELOADER =====
+    let preloaderDone = false;
+    function hidePreloader() {
+      if (preloaderDone) return;
+      preloaderDone = true;
+      const preloader = document.getElementById('preloader');
+      preloader.classList.add('hidden');
+      document.body.classList.remove('loading');
+      // Start hero animations
+      document.querySelectorAll('.hero-entrance').forEach(el => el.classList.add('go'));
+      document.querySelectorAll('.hero-img-entrance').forEach(el => el.classList.add('go'));
     }
+
+    // Hide after progress bar finishes (2.8s) OR when page loads
+    const preloaderTimer = setTimeout(hidePreloader, 2800);
+    window.addEventListener('load', () => {
+      clearTimeout(preloaderTimer);
+      setTimeout(hidePreloader, 500);
+    });
 
     // ===== NAVBAR SCROLL =====
     const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      navbar.classList.toggle('scrolled', window.scrollY > 40);
-    });
+    let lastScrollY = 0;
+    function onScroll() {
+      const y = window.scrollY;
+      navbar.classList.toggle('scrolled', y > 40);
+      document.getElementById('scroll-top').classList.toggle('visible', y > 500);
+      lastScrollY = y;
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    // ===== HAMBURGER MENU =====
+    // ===== HAMBURGER =====
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobile-menu');
-    const menuLinks = document.querySelectorAll('.menu-link');
+    function toggleMenu(force) {
+      const open = force !== undefined ? force : !mobileMenu.classList.contains('open');
+      mobileMenu.classList.toggle('open', open);
+      hamburger.classList.toggle('active', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    }
+    hamburger.addEventListener('click', () => toggleMenu());
+    document.querySelectorAll('.menu-link').forEach(l => l.addEventListener('click', () => toggleMenu(false)));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') toggleMenu(false); });
 
-    function toggleMenu() {
-      const isOpen = mobileMenu.classList.contains('open');
-      if (isOpen) {
-        mobileMenu.classList.remove('open');
-        hamburger.classList.remove('active');
-        document.body.style.overflow = '';
-      } else {
-        mobileMenu.classList.add('open');
-        hamburger.classList.add('active');
-        document.body.style.overflow = 'hidden';
+    // ===== SCROLL REVEAL (IntersectionObserver) =====
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal, .reveal-stagger, .reveal-scale').forEach(el => {
+      revealObserver.observe(el);
+    });
+
+    // ===== COUNTER ANIMATION =====
+    function animateCounter(el, target) {
+      const duration = 2000;
+      const start = performance.now();
+      const isLarge = target >= 1000;
+
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // Ease out cubic
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const value = Math.round(ease * target);
+        if (isLarge) {
+          el.textContent = value >= 1000 ? (value / 1000).toFixed(0) + 'K+' : value.toString();
+        } else {
+          el.textContent = value;
+        }
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = isLarge && target >= 1000 ? Math.round(target/1000) + 'K+' : target;
       }
+      requestAnimationFrame(update);
     }
 
-    hamburger.addEventListener('click', toggleMenu);
-    menuLinks.forEach(link => {
-      link.addEventListener('click', () => {
-        mobileMenu.classList.remove('open');
-        hamburger.classList.remove('active');
-        document.body.style.overflow = '';
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.count);
+          animateCounter(el, target);
+          counterObserver.unobserve(el);
+        }
       });
-    });
+    }, { threshold: 0.5 });
 
-    // Close menu on escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && mobileMenu.classList.contains('open')) {
-        toggleMenu();
-      }
-    });
+    document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
 
     // ===== FLATPICKR =====
-    flatpickr('#travel-date', {
-      locale: 'es',
-      dateFormat: 'd \\de F, Y',
-      minDate: 'today',
-    });
+    if (typeof flatpickr !== 'undefined') {
+      flatpickr('#travel-date', {
+        locale: 'es',
+        dateFormat: 'd \\de F, Y',
+        minDate: 'today',
+        disableMobile: false
+      });
+    }
 
     // ===== MAP =====
     const locationInput = document.getElementById('location-input');
     const mapModal = document.getElementById('map-modal');
-    const closeMapBtn = document.getElementById('close-map');
-    let map;
+    let map = null;
 
     const colombiaDestinations = [
       { name: 'Cartagena', coords: [10.3910, -75.4794] },
@@ -2203,47 +1822,60 @@ html_content = '''<!DOCTYPE html>
     document.getElementById('location-trigger').addEventListener('click', () => {
       mapModal.classList.add('active');
       document.body.style.overflow = 'hidden';
+
       if (!map) {
-        map = L.map('map').setView([4.5709, -74.2973], 5);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap'
-        }).addTo(map);
-        colombiaDestinations.forEach(dest => {
-          const marker = L.marker(dest.coords).addTo(map);
-          marker.bindPopup(`<b>${dest.name}</b><br><button class="map-select-btn" data-name="${dest.name}" style="margin-top:8px;padding:6px 12px;background:#01bbbf;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-family:sans-serif;font-size:13px;">Seleccionar</button>`);
+        requestAnimationFrame(() => {
+          map = L.map('map').setView([4.5709, -74.2973], 5);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap', maxZoom: 18
+          }).addTo(map);
+
+          const customIcon = L.divIcon({
+            html: `<div style="width:24px;height:24px;background:#01bbbf;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(1,187,191,0.5)"></div>`,
+            className: '',
+            iconSize: [24, 24],
+            iconAnchor: [12, 24],
+            popupAnchor: [0, -28]
+          });
+
+          colombiaDestinations.forEach(dest => {
+            const marker = L.marker(dest.coords, { icon: customIcon }).addTo(map);
+            marker.bindPopup(`
+              <div style="font-family:Poppins,sans-serif;min-width:140px;padding:4px">
+                <strong style="font-size:14px;color:#1d293d">${dest.name}</strong><br>
+                <button onclick="selectDestination('${dest.name}')" style="margin-top:10px;padding:7px 14px;background:#01bbbf;color:white;border:none;border-radius:20px;cursor:pointer;font-weight:600;font-size:12px;width:100%">Seleccionar</button>
+              </div>
+            `);
+          });
+
+          map.invalidateSize();
         });
-        map.on('popupopen', () => {
-          const btn = document.querySelector('.map-select-btn');
-          if (btn) {
-            btn.addEventListener('click', function() {
-              locationInput.value = this.getAttribute('data-name');
-              mapModal.classList.remove('active');
-              document.body.style.overflow = '';
-            });
-          }
-        });
+      } else {
+        setTimeout(() => map.invalidateSize(), 200);
       }
-      setTimeout(() => map.invalidateSize(), 150);
     });
+
+    window.selectDestination = function(name) {
+      locationInput.value = name;
+      mapModal.classList.remove('active');
+      document.body.style.overflow = '';
+    };
 
     function closeMap() {
       mapModal.classList.remove('active');
       document.body.style.overflow = '';
     }
 
-    closeMapBtn.addEventListener('click', closeMap);
-    mapModal.addEventListener('click', (e) => {
-      if (e.target === mapModal) closeMap();
-    });
+    document.getElementById('close-map').addEventListener('click', closeMap);
+    mapModal.addEventListener('click', e => { if (e.target === mapModal) closeMap(); });
 
-    // ===== WHATSAPP FORM =====
-    document.getElementById('travel-form').addEventListener('submit', (e) => {
+    // ===== SEARCH FORM → WHATSAPP =====
+    document.getElementById('travel-form').addEventListener('submit', e => {
       e.preventDefault();
-      let destino = locationInput.value || 'un destino increíble en Colombia';
-      let fecha = document.getElementById('travel-date').value || 'una fecha próxima';
-      const mensaje = `¡Hola equipo de Advanto! ✈️\\n\\nMe encantaría viajar a *${destino}* el día *${fecha}*.\\n\\n¿Me podrían compartir más información sobre los planes disponibles, por favor? 🌴😊`;
-      const numeroTelefono = '573000000000';
-      window.open(`https://wa.me/${numeroTelefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
+      const destino = locationInput.value || 'un destino increíble en Colombia';
+      const fecha = document.getElementById('travel-date').value || 'una fecha próxima';
+      const msg = `¡Hola equipo de Advanto! ✈️\n\nMe encantaría viajar a *${destino}* el día *${fecha}*.\n\n¿Me pueden compartir más información sobre los planes disponibles? 🌴😊`;
+      window.open(`https://wa.me/573000000000?text=${encodeURIComponent(msg)}`, '_blank');
     });
 
     // ===== FAQ ACCORDION =====
@@ -2251,25 +1883,15 @@ html_content = '''<!DOCTYPE html>
       btn.addEventListener('click', () => {
         const item = btn.parentElement;
         const isActive = item.classList.contains('active');
-        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+        document.querySelectorAll('.faq-item.active').forEach(i => i.classList.remove('active'));
         if (!isActive) item.classList.add('active');
       });
     });
 
     // ===== SCROLL TOP =====
-    const scrollTopBtn = document.getElementById('scroll-top');
-    window.addEventListener('scroll', () => {
-      scrollTopBtn.classList.toggle('visible', window.scrollY > 500);
-    });
-    scrollTopBtn.addEventListener('click', () => {
+    document.getElementById('scroll-top').addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   </script>
 </body>
-</html>'''
-
-with open('/mnt/agents/output/advanto_final.html', 'w', encoding='utf-8') as f:
-    f.write(html_content)
-
-print("Archivo guardado exitosamente.")
-print("Tamaño:", len(html_content), "caracteres")
+</html>
